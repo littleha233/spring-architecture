@@ -1,5 +1,6 @@
 package com.example.springdemo.service;
 
+import com.example.springdemo.biz.EthWalletBiz;
 import com.example.springdemo.config.EthWalletProperties;
 import com.example.springdemo.domain.EthWallet;
 import com.example.springdemo.repository.EthWalletRepository;
@@ -20,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class EthereumWalletService {
+public class EthereumWalletService implements EthWalletBiz {
     private static final String BC_PROVIDER = "BC";
 
     private final EthWalletRepository ethWalletRepository;
@@ -34,6 +35,7 @@ public class EthereumWalletService {
         }
     }
 
+    @Override
     public EthWallet generateAndSave(Long uid) {
         long currentCount = ethWalletRepository.countByUid(uid);
         int maxCountPerUser = ethWalletProperties.getMaxCountPerUser();
@@ -58,10 +60,12 @@ public class EthereumWalletService {
         }
     }
 
+    @Override
     public List<EthWallet> listAll() {
         return ethWalletRepository.findAllByOrderByCreateTimeDesc();
     }
 
+    @Override
     public List<EthWallet> listByUid(Long uid) {
         return ethWalletRepository.findByUidOrderByCreateTimeDesc(uid);
     }

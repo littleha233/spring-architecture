@@ -1,7 +1,7 @@
 package com.example.springdemo.controller;
 
+import com.example.springdemo.biz.EthWalletBiz;
 import com.example.springdemo.domain.EthWallet;
-import com.example.springdemo.service.EthereumWalletService;
 import com.example.springdemo.service.exception.EthAddressLimitExceededException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +19,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/eth-addresses")
 public class EthWalletApiController {
-    private final EthereumWalletService ethereumWalletService;
+    private final EthWalletBiz ethWalletBiz;
 
-    public EthWalletApiController(EthereumWalletService ethereumWalletService) {
-        this.ethereumWalletService = ethereumWalletService;
+    public EthWalletApiController(EthWalletBiz ethWalletBiz) {
+        this.ethWalletBiz = ethWalletBiz;
     }
 
     @PostMapping("/generate")
@@ -30,7 +30,7 @@ public class EthWalletApiController {
         if (request == null || request.uid() == null || request.uid() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "uid must be a positive number");
         }
-        return ethereumWalletService.generateAndSave(request.uid());
+        return ethWalletBiz.generateAndSave(request.uid());
     }
 
     @GetMapping
@@ -39,9 +39,9 @@ public class EthWalletApiController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "uid must be a positive number");
         }
         if (uid == null) {
-            return ethereumWalletService.listAll();
+            return ethWalletBiz.listAll();
         }
-        return ethereumWalletService.listByUid(uid);
+        return ethWalletBiz.listByUid(uid);
     }
 
     @ExceptionHandler(EthAddressLimitExceededException.class)

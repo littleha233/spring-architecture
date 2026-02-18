@@ -2,7 +2,10 @@ package com.example.springdemo.controller;
 
 import com.example.springdemo.domain.EthWallet;
 import com.example.springdemo.service.EthereumWalletService;
+import com.example.springdemo.service.exception.EthAddressLimitExceededException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,6 +44,14 @@ public class EthWalletApiController {
         return ethereumWalletService.listByUserId(userId);
     }
 
+    @ExceptionHandler(EthAddressLimitExceededException.class)
+    public ResponseEntity<ErrorResponse> handleLimit(EthAddressLimitExceededException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(e.getMessage()));
+    }
+
     public record GenerateEthAddressRequest(Long userId) {
+    }
+
+    public record ErrorResponse(String message) {
     }
 }

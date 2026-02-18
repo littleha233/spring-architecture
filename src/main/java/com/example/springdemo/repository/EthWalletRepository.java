@@ -9,4 +9,6 @@ public interface EthWalletRepository extends JpaRepository<EthWallet, Long> {
     List<EthWallet> findAllByOrderByCreatedAtDesc();
 
     List<EthWallet> findByUserIdOrderByCreatedAtDesc(Long userId);
+
+    long countByUserId(Long userId);
 }

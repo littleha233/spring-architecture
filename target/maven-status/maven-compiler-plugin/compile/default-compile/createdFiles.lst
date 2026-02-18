@@ -4,9 +4,12 @@ com/example/springdemo/controller/EthWalletApiController$GenerateEthAddressReque
 com/example/springdemo/service/EthereumWalletService.class
 com/example/springdemo/controller/NoteApiController.class
 com/example/springdemo/SpringDemoApplication.class
+com/example/springdemo/controller/EthWalletApiController$ErrorResponse.class
 com/example/springdemo/controller/EthWalletApiController.class
+com/example/springdemo/service/exception/EthAddressLimitExceededException.class
 com/example/springdemo/domain/EthWallet.class
 com/example/springdemo/service/NoteService.class
 com/example/springdemo/controller/NoteApiController$CreateNoteRequest.class
 com/example/springdemo/domain/Note.class
 com/example/springdemo/repository/EthWalletRepository.class
+com/example/springdemo/config/EthWalletProperties.class

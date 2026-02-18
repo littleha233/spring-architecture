@@ -9,6 +9,31 @@ function showMessage(text) {
     messageBox.textContent = text || '';
 }
 
+async function extractErrorMessage(response, fallbackMessage) {
+    try {
+        const body = await response.json();
+        if (body && typeof body.message === 'string' && body.message.trim()) {
+            return body.message;
+        }
+        if (body && typeof body.detail === 'string' && body.detail.trim()) {
+            return body.detail;
+        }
+    } catch (e) {
+        // ignore json parse errors
+    }
+
+    try {
+        const text = await response.text();
+        if (text && text.trim()) {
+            return text;
+        }
+    } catch (e) {
+        // ignore text parse errors
+    }
+
+    return fallbackMessage;
+}
+
 function renderLatest(wallet) {
     if (!wallet) {
         latestBox.innerHTML = '<div class="k">No wallet generated yet.</div>';
@@ -50,8 +75,7 @@ async function loadWallets() {
     const query = userId ? `?userId=${encodeURIComponent(userId)}` : '';
     const response = await fetch(`/api/eth-addresses${query}`);
     if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text || 'Failed to load wallets');
+        throw new Error(await extractErrorMessage(response, 'Failed to load wallets'));
     }
     const wallets = await response.json();
     renderList(wallets);
@@ -76,8 +100,7 @@ async function generateWallet() {
             body: JSON.stringify({ userId })
         });
         if (!response.ok) {
-            const text = await response.text();
-            throw new Error(text || 'Failed to generate wallet');
+            throw new Error(await extractErrorMessage(response, 'Failed to generate wallet'));
         }
 
         const wallet = await response.json();

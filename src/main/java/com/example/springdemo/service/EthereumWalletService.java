@@ -1,7 +1,9 @@
 package com.example.springdemo.service;
 
+import com.example.springdemo.config.EthWalletProperties;
 import com.example.springdemo.domain.EthWallet;
 import com.example.springdemo.repository.EthWalletRepository;
+import com.example.springdemo.service.exception.EthAddressLimitExceededException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.stereotype.Service;
 
@@ -22,15 +24,23 @@ public class EthereumWalletService {
     private static final String BC_PROVIDER = "BC";
 
     private final EthWalletRepository ethWalletRepository;
+    private final EthWalletProperties ethWalletProperties;
 
-    public EthereumWalletService(EthWalletRepository ethWalletRepository) {
+    public EthereumWalletService(EthWalletRepository ethWalletRepository, EthWalletProperties ethWalletProperties) {
         this.ethWalletRepository = ethWalletRepository;
+        this.ethWalletProperties = ethWalletProperties;
         if (Security.getProvider(BC_PROVIDER) == null) {
             Security.addProvider(new BouncyCastleProvider());
         }
     }
 
     public EthWallet generateAndSave(Long userId) {
+        long currentCount = ethWalletRepository.countByUserId(userId);
+        int maxCountPerUser = ethWalletProperties.getMaxCountPerUser();
+        if (currentCount >= maxCountPerUser) {
+            throw new EthAddressLimitExceededException("生成地址数量已达上限（最多 " + maxCountPerUser + " 个）");
+        }
+
         try {
             KeyPair keyPair = generateKeyPair();
             ECPrivateKey privateKey = (ECPrivateKey) keyPair.getPrivate();

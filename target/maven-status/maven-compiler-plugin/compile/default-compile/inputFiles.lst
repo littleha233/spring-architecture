@@ -1,5 +1,7 @@
+/Users/meng/IdeaProjects/spring-demo/src/main/java/com/example/springdemo/config/EthWalletProperties.java
 /Users/meng/IdeaProjects/spring-demo/src/main/java/com/example/springdemo/domain/EthWallet.java
 /Users/meng/IdeaProjects/spring-demo/src/main/java/com/example/springdemo/controller/PageController.java
+/Users/meng/IdeaProjects/spring-demo/src/main/java/com/example/springdemo/service/exception/EthAddressLimitExceededException.java
 /Users/meng/IdeaProjects/spring-demo/src/main/java/com/example/springdemo/controller/EthWalletApiController.java
 /Users/meng/IdeaProjects/spring-demo/src/main/java/com/example/springdemo/repository/NoteRepository.java
 /Users/meng/IdeaProjects/spring-demo/src/main/java/com/example/springdemo/SpringDemoApplication.java

@@ -4,7 +4,7 @@
 - Web 前端（Thymeleaf + 简单 JS）
 - REST API
 - 服务层 + 持久层
-- 数据库（MySQL + JPA）
+- 数据库（默认 MySQL + JPA）
 
 ## 启动方式
 
@@ -15,6 +15,8 @@ mvn spring-boot:run
 
 启动后访问：
 - 首页：`http://localhost:8080/`
+
+默认连接本机 MySQL（`springdemo` 数据库）。
 
 ## 目录结构
 
@@ -33,6 +35,7 @@ spring-demo
 │       └── Note.java
 └── src/main/resources
     ├── application.yml
+    ├── application-mysql.yml
     ├── static
     │   └── app.js
     └── templates
@@ -72,12 +75,12 @@ spring-demo
 
 ### 5) 数据库层
 
-- 使用本机 MySQL（配置在 `application.yml`）。
+- 默认使用 MySQL（配置在 `application.yml`）。
 - 通过 JPA 自动建表（`spring.jpa.hibernate.ddl-auto=update`）。
 
 **职责**：持久化存储数据。
 
-## MySQL 准备
+## MySQL 准备（可选）
 
 请先在本机 MySQL 创建数据库与账号（示例）：
 

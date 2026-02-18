@@ -5,6 +5,7 @@
 - REST API
 - 服务层 + 持久层
 - 数据库（默认 MySQL + JPA）
+- 币种与链扩展参数配置页面（`/coin-config`）
 
 ## 启动方式
 
@@ -15,6 +16,7 @@ mvn spring-boot:run
 
 启动后访问：
 - 首页：`http://localhost:8080/`
+- 币种配置页：`http://localhost:8080/coin-config`
 
 默认连接本机 MySQL（`springdemo` 数据库）。
 
@@ -129,3 +131,9 @@ FLUSH PRIVILEGES;
 - 换成 MySQL/PostgreSQL
 - 增加身份认证（Spring Security）
 - 前后端分离（React/Vue + REST API）
+
+## 相关模块文档
+
+- 以太坊地址生成：`README-eth-address.md`
+- 以太坊提币：`README-eth-withdrawal.md`
+- 币种与扩展参数配置：`README-coin-config.md`

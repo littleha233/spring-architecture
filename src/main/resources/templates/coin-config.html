@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin & Chain Config</title>
+    <style>
+        :root {
+            --bg-a: #fff8e1;
+            --bg-b: #ecfeff;
+            --panel: #ffffff;
+            --ink: #0f172a;
+            --subtle: #64748b;
+            --line: #dbe4ef;
+            --primary: #0369a1;
+            --primary-hover: #0c4a6e;
+            --warn: #b91c1c;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+            background: radial-gradient(circle at 12% 12%, #fde68a 0%, transparent 34%),
+                        radial-gradient(circle at 86% 18%, #a5f3fc 0%, transparent 38%),
+                        linear-gradient(120deg, var(--bg-a), var(--bg-b));
+        }
+
+        .layout {
+            max-width: 1250px;
+            margin: 30px auto;
+            padding: 0 16px;
+            display: grid;
+            gap: 14px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+            padding: 16px;
+        }
+
+        h1, h2 {
+            margin: 0;
+        }
+
+        .desc {
+            margin-top: 8px;
+            color: var(--subtle);
+        }
+
+        .grid-2 {
+            margin-top: 12px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(240px, 1fr));
+            gap: 10px;
+        }
+
+        .grid-3 {
+            margin-top: 12px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(220px, 1fr));
+            gap: 10px;
+        }
+
+        .form-item {
+            display: grid;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 12px;
+            color: var(--subtle);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 9px 12px;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        textarea {
+            min-height: 86px;
+            resize: vertical;
+        }
+
+        .actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 14px;
+            color: #fff;
+            background: var(--primary);
+            cursor: pointer;
+        }
+
+        button:hover { background: var(--primary-hover); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .ghost { background: #0f172a; }
+        .danger { background: #b91c1c; }
+
+        .msg {
+            margin-top: 8px;
+            color: var(--warn);
+            min-height: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th, td {
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            padding: 8px;
+            vertical-align: top;
+            overflow-wrap: anywhere;
+        }
+
+        th {
+            color: var(--subtle);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        a {
+            color: #0f172a;
+            text-decoration: none;
+            font-weight: 600;
+            margin-right: 14px;
+        }
+
+        @media (max-width: 980px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            table, thead, tbody, tr, th, td { display: block; }
+            thead { display: none; }
+            tr {
+                border: 1px solid var(--line);
+                border-radius: 10px;
+                margin-bottom: 10px;
+                padding: 8px;
+            }
+            td { border: none; padding: 6px 0; }
+        }
+    </style>
+</head>
+<body>
+<main class="layout">
+    <section class="panel">
+        <h1>Coin Config Center</h1>
+        <div class="desc">Configure base coin data and chain-level extension params with custom key/value details.</div>
+    </section>
+
+    <section class="panel">
+        <div class="section-title">
+            <h2>1) Coin Config</h2>
+        </div>
+        <div class="grid-3">
+            <div class="form-item">
+                <label for="coinIdInput">Coin ID</label>
+                <input id="coinIdInput" type="text" placeholder="e.g. usdt">
+            </div>
+            <div class="form-item">
+                <label for="coinSymbolInput">Coin Symbol</label>
+                <input id="coinSymbolInput" type="text" placeholder="e.g. USDT">
+            </div>
+            <div class="form-item">
+                <label for="coinFullNameInput">Coin Full Name</label>
+                <input id="coinFullNameInput" type="text" placeholder="e.g. Tether USD">
+            </div>
+            <div class="form-item">
+                <label for="coinPrecisionInput">Coin Precision</label>
+                <input id="coinPrecisionInput" type="number" min="0" placeholder="e.g. 6">
+            </div>
+            <div class="form-item">
+                <label for="coinIconUrlInput">Coin Icon URL</label>
+                <input id="coinIconUrlInput" type="text" placeholder="https://...">
+            </div>
+            <div class="form-item">
+                <label for="coinEnabledInput">Enabled</label>
+                <select id="coinEnabledInput">
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                </select>
+            </div>
+        </div>
+        <div class="actions">
+            <button id="saveCoinBtn" type="button">Save Coin</button>
+            <button id="resetCoinBtn" type="button" class="ghost">Reset</button>
+        </div>
+        <div id="coinMsg" class="msg"></div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Coin ID</th>
+                <th>Symbol</th>
+                <th>Full Name</th>
+                <th>Precision</th>
+                <th>Enabled</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody id="coinTableBody"></tbody>
+        </table>
+    </section>
+
+    <section class="panel">
+        <div class="section-title">
+            <h2>2) Chain Extension Config</h2>
+            <div style="color: var(--subtle); font-size: 13px;">Choose coin first, then configure ETH/BSC/SOL chain params.</div>
+        </div>
+        <div class="grid-2">
+            <div class="form-item">
+                <label for="selectedCoinInput">Selected Coin</label>
+                <select id="selectedCoinInput"></select>
+            </div>
+        </div>
+
+        <div class="grid-3">
+            <div class="form-item">
+                <label for="chainCodeInput">Chain Code</label>
+                <input id="chainCodeInput" type="text" placeholder="ETH / BSC / SOL">
+            </div>
+            <div class="form-item">
+                <label for="rpcUrlInput">RPC URL</label>
+                <input id="rpcUrlInput" type="text" placeholder="https://...">
+            </div>
+            <div class="form-item">
+                <label for="collectionAddressInput">Collection Address</label>
+                <input id="collectionAddressInput" type="text" placeholder="0x... / Sol address ...">
+            </div>
+            <div class="form-item">
+                <label for="withdrawAddressInput">Withdraw Address</label>
+                <input id="withdrawAddressInput" type="text" placeholder="0x... / Sol address ...">
+            </div>
+            <div class="form-item">
+                <label for="minWithdrawAmountInput">Min Withdraw Amount</label>
+                <input id="minWithdrawAmountInput" type="number" min="0" step="0.000000000000000001" placeholder="0.01">
+            </div>
+            <div class="form-item">
+                <label for="withdrawPrecisionInput">Withdraw Precision</label>
+                <input id="withdrawPrecisionInput" type="number" min="0" placeholder="e.g. 6">
+            </div>
+            <div class="form-item">
+                <label for="minDepositAmountInput">Min Deposit Amount</label>
+                <input id="minDepositAmountInput" type="number" min="0" step="0.000000000000000001" placeholder="0.01">
+            </div>
+            <div class="form-item">
+                <label for="depositPrecisionInput">Deposit Precision</label>
+                <input id="depositPrecisionInput" type="number" min="0" placeholder="e.g. 6">
+            </div>
+            <div class="form-item">
+                <label for="chainEnabledInput">Enabled</label>
+                <select id="chainEnabledInput">
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                </select>
+            </div>
+        </div>
+        <div class="actions">
+            <button id="saveChainConfigBtn" type="button">Save Chain Config</button>
+            <button id="resetChainConfigBtn" type="button" class="ghost">Reset</button>
+            <button id="refreshChainConfigBtn" type="button" class="ghost">Refresh List</button>
+        </div>
+        <div id="chainMsg" class="msg"></div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Chain</th>
+                <th>RPC</th>
+                <th>Withdraw Min / Precision</th>
+                <th>Deposit Min / Precision</th>
+                <th>Enabled</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody id="chainTableBody"></tbody>
+        </table>
+    </section>
+
+    <section id="extraPanel" class="panel hidden">
+        <div class="section-title">
+            <h2>3) Extra Field Key/Value (Secondary Panel)</h2>
+            <div id="extraPanelHint" style="color: var(--subtle); font-size: 13px;"></div>
+        </div>
+        <div class="grid-2">
+            <div class="form-item">
+                <label for="extraKeyInput">Key</label>
+                <input id="extraKeyInput" type="text" placeholder="e.g. chainId">
+            </div>
+            <div class="form-item">
+                <label for="extraValueInput">Value</label>
+                <textarea id="extraValueInput" placeholder="e.g. 1"></textarea>
+            </div>
+        </div>
+        <div class="actions">
+            <button id="saveExtraBtn" type="button">Save Extra</button>
+            <button id="resetExtraBtn" type="button" class="ghost">Reset</button>
+        </div>
+        <div id="extraMsg" class="msg"></div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Key</th>
+                <th>Value</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody id="extraTableBody"></tbody>
+        </table>
+    </section>
+
+    <section class="panel">
+        <a href="/eth-address">Ethereum Address</a>
+        <a href="/eth-withdraw">Ethereum Withdraw</a>
+        <a href="/">Back to Notes</a>
+    </section>
+</main>
+<script src="/coin-config.js"></script>
+</body>
+</html>

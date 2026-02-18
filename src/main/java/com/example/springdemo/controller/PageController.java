@@ -20,4 +20,9 @@ public class PageController {
     public String ethWithdraw() {
         return "eth-withdraw";
     }
+
+    @GetMapping("/coin-config")
+    public String coinConfig() {
+        return "coin-config";
+    }
 }

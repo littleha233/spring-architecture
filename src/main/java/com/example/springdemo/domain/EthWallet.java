@@ -6,17 +6,23 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import lombok.Data;
 
 @Entity
+@Table(name = "eth_wallet")
 @Data
 public class EthWallet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
+    @Column(name = "uid")
+    private Long uid;
+
+    @Column(nullable = false, length = 42)
+    private String address;
 
     @Column(nullable = false, length = 66)
     private String privateKey;
@@ -24,26 +30,24 @@ public class EthWallet {
     @Column(nullable = false, length = 132)
     private String publicKey;
 
-    @Column(nullable = false, length = 42)
-    private String address;
-
-    private Instant createdAt;
+    @Column(name = "create_time")
+    private Instant createTime;
 
     protected EthWallet() {
         // for JPA
     }
 
-    public EthWallet(Long userId, String privateKey, String publicKey, String address) {
-        this.userId = userId;
+    public EthWallet(Long uid, String privateKey, String publicKey, String address) {
+        this.uid = uid;
+        this.address = address;
         this.privateKey = privateKey;
         this.publicKey = publicKey;
-        this.address = address;
     }
 
     @PrePersist
     public void onCreate() {
-        if (createdAt == null) {
-            createdAt = Instant.now();
+        if (createTime == null) {
+            createTime = Instant.now();
         }
     }
 }

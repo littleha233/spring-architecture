@@ -1,4 +1,4 @@
-const userIdInput = document.getElementById('userId');
+const uidInput = document.getElementById('uid');
 const generateBtn = document.getElementById('generateBtn');
 const loadBtn = document.getElementById('loadBtn');
 const messageBox = document.getElementById('message');
@@ -41,38 +41,35 @@ function renderLatest(wallet) {
     }
 
     latestBox.innerHTML = `
-        <div class="kv"><div class="k">User ID</div><div class="v">${wallet.userId}</div></div>
+        <div class="kv"><div class="k">UID</div><div class="v">${wallet.uid}</div></div>
+        <div class="kv"><div class="k">ID</div><div class="v">${wallet.id}</div></div>
         <div class="kv"><div class="k">Address</div><div class="v">${wallet.address}</div></div>
-        <div class="kv"><div class="k">Public Key</div><div class="v">${wallet.publicKey}</div></div>
-        <div class="kv"><div class="k">Private Key</div><div class="v">${wallet.privateKey}</div></div>
-        <div class="kv"><div class="k">Created At</div><div class="v">${new Date(wallet.createdAt).toLocaleString()}</div></div>
+        <div class="kv"><div class="k">Create Time</div><div class="v">${new Date(wallet.createTime).toLocaleString()}</div></div>
     `;
 }
 
 function renderList(wallets) {
     walletTbody.innerHTML = '';
     if (!wallets || wallets.length === 0) {
-        walletTbody.innerHTML = '<tr><td colspan="6">No data.</td></tr>';
+        walletTbody.innerHTML = '<tr><td colspan="4">No data.</td></tr>';
         return;
     }
 
     wallets.forEach((wallet) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
+            <td>${wallet.uid}</td>
             <td>${wallet.id}</td>
-            <td>${wallet.userId}</td>
             <td>${wallet.address}</td>
-            <td>${wallet.publicKey}</td>
-            <td>${wallet.privateKey}</td>
-            <td>${new Date(wallet.createdAt).toLocaleString()}</td>
+            <td>${new Date(wallet.createTime).toLocaleString()}</td>
         `;
         walletTbody.appendChild(tr);
     });
 }
 
 async function loadWallets() {
-    const userId = userIdInput.value.trim();
-    const query = userId ? `?userId=${encodeURIComponent(userId)}` : '';
+    const uid = uidInput.value.trim();
+    const query = uid ? `?uid=${encodeURIComponent(uid)}` : '';
     const response = await fetch(`/api/eth-addresses${query}`);
     if (!response.ok) {
         throw new Error(await extractErrorMessage(response, 'Failed to load wallets'));
@@ -82,10 +79,10 @@ async function loadWallets() {
 }
 
 async function generateWallet() {
-    const userIdText = userIdInput.value.trim();
-    const userId = Number(userIdText);
-    if (!userIdText || !Number.isInteger(userId) || userId <= 0) {
-        showMessage('Please enter a positive integer userId.');
+    const uidText = uidInput.value.trim();
+    const uid = Number(uidText);
+    if (!uidText || !Number.isInteger(uid) || uid <= 0) {
+        showMessage('Please enter a positive integer uid.');
         return;
     }
 
@@ -97,7 +94,7 @@ async function generateWallet() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ userId })
+            body: JSON.stringify({ uid })
         });
         if (!response.ok) {
             throw new Error(await extractErrorMessage(response, 'Failed to generate wallet'));

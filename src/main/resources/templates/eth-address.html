@@ -179,9 +179,9 @@
 <main class="layout">
     <section class="panel">
         <h1>Ethereum Address Generator</h1>
-        <div class="desc">Generate secp256k1 wallet data and persist userId, keys and address via Spring Boot API.</div>
+        <div class="desc">Generate secp256k1 wallet data and persist uid, keys and address via Spring Boot API.</div>
         <div class="row">
-            <input id="userId" type="number" min="1" placeholder="Input userId, e.g. 1001" />
+            <input id="uid" type="number" min="1" placeholder="Input uid, e.g. 1001" />
             <button id="generateBtn" type="button">Generate & Save</button>
             <button id="loadBtn" type="button" class="ghost">Refresh List</button>
         </div>
@@ -200,12 +200,10 @@
         <table>
             <thead>
             <tr>
+                <th>UID</th>
                 <th>ID</th>
-                <th>User ID</th>
                 <th>Address</th>
-                <th>Public Key</th>
-                <th>Private Key</th>
-                <th>Created At</th>
+                <th>Create Time</th>
             </tr>
             </thead>
             <tbody id="walletTbody"></tbody>

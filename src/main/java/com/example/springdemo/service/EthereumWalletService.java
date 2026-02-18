@@ -34,8 +34,8 @@ public class EthereumWalletService {
         }
     }
 
-    public EthWallet generateAndSave(Long userId) {
-        long currentCount = ethWalletRepository.countByUserId(userId);
+    public EthWallet generateAndSave(Long uid) {
+        long currentCount = ethWalletRepository.countByUid(uid);
         int maxCountPerUser = ethWalletProperties.getMaxCountPerUser();
         if (currentCount >= maxCountPerUser) {
             throw new EthAddressLimitExceededException("生成地址数量已达上限（最多 " + maxCountPerUser + " 个）");
@@ -51,7 +51,7 @@ public class EthereumWalletService {
             String publicKeyHex = toHexWithPrefix(publicKeyBytes);
             String address = buildAddress(publicKeyBytes);
 
-            EthWallet wallet = new EthWallet(userId, privateKeyHex, publicKeyHex, address);
+            EthWallet wallet = new EthWallet(uid, privateKeyHex, publicKeyHex, address);
             return ethWalletRepository.save(wallet);
         } catch (GeneralSecurityException e) {
             throw new IllegalStateException("Failed to generate ethereum wallet", e);
@@ -59,11 +59,11 @@ public class EthereumWalletService {
     }
 
     public List<EthWallet> listAll() {
-        return ethWalletRepository.findAllByOrderByCreatedAtDesc();
+        return ethWalletRepository.findAllByOrderByCreateTimeDesc();
     }
 
-    public List<EthWallet> listByUserId(Long userId) {
-        return ethWalletRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    public List<EthWallet> listByUid(Long uid) {
+        return ethWalletRepository.findByUidOrderByCreateTimeDesc(uid);
     }
 
     private KeyPair generateKeyPair() throws GeneralSecurityException {

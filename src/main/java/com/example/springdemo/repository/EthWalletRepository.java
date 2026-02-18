@@ -6,9 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface EthWalletRepository extends JpaRepository<EthWallet, Long> {
-    List<EthWallet> findAllByOrderByCreatedAtDesc();
+    List<EthWallet> findAllByOrderByCreateTimeDesc();
 
-    List<EthWallet> findByUserIdOrderByCreatedAtDesc(Long userId);
+    List<EthWallet> findByUidOrderByCreateTimeDesc(Long uid);
 
-    long countByUserId(Long userId);
+    long countByUid(Long uid);
 }

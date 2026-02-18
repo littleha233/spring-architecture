@@ -12,12 +12,12 @@ CREATE TABLE IF NOT EXISTS note (
 
 CREATE TABLE IF NOT EXISTS eth_wallet (
     id BIGINT NOT NULL AUTO_INCREMENT,
-    user_id BIGINT,
+    uid BIGINT,
+    address VARCHAR(42) NOT NULL,
     private_key VARCHAR(66) NOT NULL,
     public_key VARCHAR(132) NOT NULL,
-    address VARCHAR(42) NOT NULL,
-    created_at DATETIME(6),
+    create_time DATETIME(6),
     PRIMARY KEY (id),
-    INDEX idx_eth_wallet_user_id (user_id),
-    INDEX idx_eth_wallet_created_at (created_at)
+    INDEX idx_eth_wallet_uid (uid),
+    INDEX idx_eth_wallet_create_time (create_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

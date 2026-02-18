@@ -27,21 +27,21 @@ public class EthWalletApiController {
 
     @PostMapping("/generate")
     public EthWallet generate(@RequestBody GenerateEthAddressRequest request) {
-        if (request == null || request.userId() == null || request.userId() <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId must be a positive number");
+        if (request == null || request.uid() == null || request.uid() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "uid must be a positive number");
         }
-        return ethereumWalletService.generateAndSave(request.userId());
+        return ethereumWalletService.generateAndSave(request.uid());
     }
 
     @GetMapping
-    public List<EthWallet> list(@RequestParam(required = false) Long userId) {
-        if (userId != null && userId <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId must be a positive number");
+    public List<EthWallet> list(@RequestParam(required = false) Long uid) {
+        if (uid != null && uid <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "uid must be a positive number");
         }
-        if (userId == null) {
+        if (uid == null) {
             return ethereumWalletService.listAll();
         }
-        return ethereumWalletService.listByUserId(userId);
+        return ethereumWalletService.listByUid(uid);
     }
 
     @ExceptionHandler(EthAddressLimitExceededException.class)
@@ -49,7 +49,7 @@ public class EthWalletApiController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(e.getMessage()));
     }
 
-    public record GenerateEthAddressRequest(Long userId) {
+    public record GenerateEthAddressRequest(Long uid) {
     }
 
     public record ErrorResponse(String message) {

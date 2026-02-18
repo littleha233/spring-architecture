@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS eth_withdrawal (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    uid BIGINT NOT NULL,
+    from_wallet_id BIGINT NOT NULL,
+    from_address VARCHAR(42) NOT NULL,
+    to_address VARCHAR(42) NOT NULL,
+    amount_wei VARCHAR(78) NOT NULL,
+    nonce_value VARCHAR(78) NOT NULL,
+    gas_limit VARCHAR(78) NOT NULL,
+    max_priority_fee_per_gas VARCHAR(78) NOT NULL,
+    max_fee_per_gas VARCHAR(78) NOT NULL,
+    tx_hash VARCHAR(66),
+    status VARCHAR(32) NOT NULL,
+    error_message VARCHAR(1000),
+    create_time DATETIME(6),
+    PRIMARY KEY (id),
+    INDEX idx_eth_withdrawal_uid (uid),
+    INDEX idx_eth_withdrawal_tx_hash (tx_hash),
+    INDEX idx_eth_withdrawal_create_time (create_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

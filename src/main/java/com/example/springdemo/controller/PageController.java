@@ -15,4 +15,9 @@ public class PageController {
     public String ethAddress() {
         return "eth-address";
     }
+
+    @GetMapping("/eth-withdraw")
+    public String ethWithdraw() {
+        return "eth-withdraw";
+    }
 }

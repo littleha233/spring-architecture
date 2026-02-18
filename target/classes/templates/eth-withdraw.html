@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ethereum Withdrawal</title>
+    <style>
+        :root {
+            --bg-a: #fff7ed;
+            --bg-b: #eff6ff;
+            --panel: #ffffff;
+            --ink: #0f172a;
+            --subtle: #64748b;
+            --line: #dbe4ef;
+            --primary: #ea580c;
+            --primary-hover: #c2410c;
+            --warn: #b91c1c;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+            background: radial-gradient(circle at 10% 10%, #fed7aa 0%, transparent 35%),
+                        radial-gradient(circle at 85% 15%, #bfdbfe 0%, transparent 40%),
+                        linear-gradient(130deg, var(--bg-a), var(--bg-b));
+        }
+
+        .layout {
+            max-width: 1150px;
+            margin: 34px auto;
+            padding: 0 16px;
+            display: grid;
+            gap: 14px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+            padding: 16px;
+        }
+
+        h1 { margin: 0; font-size: 30px; }
+
+        .desc {
+            margin-top: 8px;
+            color: var(--subtle);
+        }
+
+        .form-grid {
+            margin-top: 12px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        .form-item { display: grid; gap: 6px; }
+
+        label {
+            font-size: 12px;
+            color: var(--subtle);
+        }
+
+        input, select {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        .actions {
+            margin-top: 12px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 14px;
+            color: #fff;
+            background: var(--primary);
+            cursor: pointer;
+        }
+
+        button:hover { background: var(--primary-hover); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .ghost { background: #0f172a; }
+
+        .msg {
+            margin-top: 10px;
+            color: var(--warn);
+            min-height: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th, td {
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            padding: 8px;
+            vertical-align: top;
+            overflow-wrap: anywhere;
+        }
+
+        th {
+            color: var(--subtle);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .kv { display: grid; gap: 6px; font-size: 13px; }
+        .k { color: var(--subtle); }
+        .v { font-family: "SFMono-Regular", Menlo, Consolas, monospace; overflow-wrap: anywhere; }
+
+        a {
+            color: #0f172a;
+            text-decoration: none;
+            font-weight: 600;
+            margin-right: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .form-grid { grid-template-columns: 1fr; }
+            table, thead, tbody, tr, th, td { display: block; }
+            thead { display: none; }
+            tr {
+                border: 1px solid var(--line);
+                border-radius: 10px;
+                margin-bottom: 10px;
+                padding: 8px;
+            }
+            td { border: none; padding: 6px 0; }
+        }
+    </style>
+</head>
+<body>
+<main class="layout">
+    <section class="panel">
+        <h1>Ethereum Withdrawal (EIP-1559)</h1>
+        <div class="desc">Select a generated from-address, input your withdraw address, sign with local private key, then broadcast.</div>
+        <div class="form-grid">
+            <div class="form-item">
+                <label for="uid">UID</label>
+                <input id="uid" type="number" min="1" placeholder="e.g. 1001">
+            </div>
+            <div class="form-item">
+                <label for="fromWalletId">From Address</label>
+                <select id="fromWalletId">
+                    <option value="">Please load address list first</option>
+                </select>
+            </div>
+            <div class="form-item">
+                <label for="toAddress">To Address</label>
+                <input id="toAddress" type="text" placeholder="0x...">
+            </div>
+            <div class="form-item">
+                <label for="amountEth">Amount (ETH)</label>
+                <input id="amountEth" type="number" min="0" step="0.000000000000000001" placeholder="0.01">
+            </div>
+        </div>
+        <div class="actions">
+            <button id="loadAddressBtn" type="button" class="ghost">Load Address List</button>
+            <button id="sendBtn" type="button">Sign & Broadcast</button>
+            <button id="refreshHistoryBtn" type="button" class="ghost">Refresh History</button>
+        </div>
+        <div id="message" class="msg"></div>
+    </section>
+
+    <section class="panel">
+        <h2>Latest Withdrawal</h2>
+        <div id="latest" class="kv">
+            <div class="k">No withdrawal yet.</div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Withdrawal History</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>UID</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Amount Wei</th>
+                <th>Tx Hash</th>
+                <th>Status</th>
+                <th>Create Time</th>
+            </tr>
+            </thead>
+            <tbody id="historyTbody"></tbody>
+        </table>
+    </section>
+
+    <section class="panel">
+        <a href="/eth-address">Go to Address Generator</a>
+        <a href="/">Back to Notes</a>
+    </section>
+</main>
+<script src="/eth-withdraw.js"></script>
+</body>
+</html>

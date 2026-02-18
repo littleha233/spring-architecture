@@ -10,4 +10,9 @@ public class PageController {
     public String index() {
         return "index";
     }
+
+    @GetMapping("/eth-address")
+    public String ethAddress() {
+        return "eth-address";
+    }
 }

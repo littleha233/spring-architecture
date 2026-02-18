@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ethereum Address Generator</title>
+    <style>
+        :root {
+            --bg-a: #ecfdf5;
+            --bg-b: #eff6ff;
+            --panel: #ffffff;
+            --ink: #0f172a;
+            --subtle: #64748b;
+            --line: #dbe4ef;
+            --primary: #0ea5a4;
+            --primary-hover: #0b8f8e;
+            --warn: #b91c1c;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+            background: radial-gradient(circle at 15% 10%, #d1fae5 0%, transparent 45%),
+                        radial-gradient(circle at 90% 15%, #bfdbfe 0%, transparent 45%),
+                        linear-gradient(120deg, var(--bg-a), var(--bg-b));
+        }
+
+        .layout {
+            max-width: 1080px;
+            margin: 36px auto;
+            padding: 0 18px;
+            display: grid;
+            gap: 16px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+            padding: 18px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 30px;
+            letter-spacing: 0.2px;
+        }
+
+        .desc {
+            margin-top: 8px;
+            color: var(--subtle);
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        input {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        button {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 14px;
+            color: #fff;
+            background: var(--primary);
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .ghost {
+            background: #0f172a;
+        }
+
+        .msg {
+            margin-top: 10px;
+            color: var(--warn);
+            min-height: 20px;
+        }
+
+        .latest {
+            display: grid;
+            gap: 10px;
+        }
+
+        .kv {
+            display: grid;
+            gap: 5px;
+            font-size: 13px;
+        }
+
+        .k {
+            color: var(--subtle);
+        }
+
+        .v {
+            overflow-wrap: anywhere;
+            font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th, td {
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            padding: 10px 8px;
+            vertical-align: top;
+            overflow-wrap: anywhere;
+        }
+
+        th {
+            color: var(--subtle);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        a {
+            color: #0f172a;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        @media (max-width: 900px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+
+            table, thead, tbody, tr, th, td {
+                display: block;
+            }
+
+            thead {
+                display: none;
+            }
+
+            tr {
+                border: 1px solid var(--line);
+                border-radius: 10px;
+                margin-bottom: 10px;
+                padding: 8px;
+            }
+
+            td {
+                border: none;
+                padding: 6px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="layout">
+    <section class="panel">
+        <h1>Ethereum Address Generator</h1>
+        <div class="desc">Generate secp256k1 wallet data and persist userId, keys and address via Spring Boot API.</div>
+        <div class="row">
+            <input id="userId" type="number" min="1" placeholder="Input userId, e.g. 1001" />
+            <button id="generateBtn" type="button">Generate & Save</button>
+            <button id="loadBtn" type="button" class="ghost">Refresh List</button>
+        </div>
+        <div id="message" class="msg"></div>
+    </section>
+
+    <section class="panel">
+        <h2>Latest Generated Wallet</h2>
+        <div id="latest" class="latest">
+            <div class="k">No wallet generated yet.</div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>History</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>User ID</th>
+                <th>Address</th>
+                <th>Public Key</th>
+                <th>Private Key</th>
+                <th>Created At</th>
+            </tr>
+            </thead>
+            <tbody id="walletTbody"></tbody>
+        </table>
+    </section>
+
+    <section class="panel">
+        <a href="/">Back to Notes</a>
+    </section>
+</main>
+<script src="/eth-address.js"></script>
+</body>
+</html>

@@ -1,121 +1,165 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spring Demo Notes</title>
+    <title>ex-wallet-config</title>
     <style>
         :root {
-            color-scheme: light;
-            --bg: #f6f7fb;
-            --card: #ffffff;
-            --accent: #0f62fe;
-            --text: #1b1f24;
-            --muted: #5b6470;
-            --border: #e5e8ef;
+            --bg: #f4f7fb;
+            --panel: #ffffff;
+            --line: #d5dfeb;
+            --ink: #1f2937;
+            --muted: #5f6b7a;
+            --primary: #0f6cbd;
+            --primary-hover: #0a4f8f;
+            --tag: #eef6ff;
         }
+
+        * { box-sizing: border-box; }
+
         body {
             margin: 0;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            font-family: "PingFang SC", "Noto Sans SC", "Segoe UI", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 10% 10%, #dbeafe 0%, transparent 32%),
+                radial-gradient(circle at 88% 20%, #cffafe 0%, transparent 35%),
+                var(--bg);
         }
+
         .container {
-            max-width: 880px;
-            margin: 40px auto;
-            padding: 0 20px;
+            max-width: 1100px;
+            margin: 28px auto;
+            padding: 0 16px;
+            display: grid;
+            gap: 14px;
         }
-        header {
-            margin-bottom: 24px;
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+            padding: 18px;
         }
+
         h1 {
-            margin: 0 0 6px;
-            font-size: 28px;
+            margin: 0;
+            font-size: 30px;
+            letter-spacing: 0.2px;
         }
+
         .subtitle {
+            margin-top: 6px;
             color: var(--muted);
+            font-size: 14px;
         }
+
+        .grid {
+            margin-top: 12px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+        }
+
         .card {
-            background: var(--card);
-            border: 1px solid var(--border);
+            border: 1px solid var(--line);
             border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
-        }
-        form {
+            padding: 14px;
+            background: #fff;
             display: grid;
-            gap: 12px;
+            gap: 8px;
         }
-        input, textarea {
-            width: 100%;
-            padding: 10px 12px;
+
+        .card h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .desc {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+            min-height: 58px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: var(--tag);
+            color: #09508f;
+            font-size: 12px;
+            border-radius: 999px;
+            padding: 3px 10px;
+            border: 1px solid #c8def8;
+        }
+
+        a.btn {
+            display: inline-block;
+            text-decoration: none;
+            background: var(--primary);
+            color: #fff;
             border-radius: 8px;
-            border: 1px solid var(--border);
-            font-size: 14px;
-        }
-        button {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 14px;
-            cursor: pointer;
-        }
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        .list {
-            display: grid;
-            gap: 12px;
-        }
-        .note-title {
+            padding: 8px 12px;
+            font-size: 13px;
             font-weight: 600;
         }
-        .note-meta {
+
+        a.btn:hover { background: var(--primary-hover); }
+
+        .foot {
             color: var(--muted);
-            font-size: 12px;
-            margin-top: 6px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .foot code {
+            background: #f8fafc;
+            border: 1px solid #dbe4ef;
+            border-radius: 6px;
+            padding: 1px 6px;
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <header>
-        <h1>Spring Boot Notes</h1>
-        <div class="subtitle">Simple CRUD demo with REST API + Thymeleaf</div>
-        <div style="margin-top: 10px;">
-            <a href="/eth-address" style="color: var(--accent); font-weight: 600; text-decoration: none;">
-                Open Ethereum Address Generator
-            </a>
-            <a href="/eth-withdraw" style="margin-left: 14px; color: var(--accent); font-weight: 600; text-decoration: none;">
-                Open Ethereum Withdrawal
-            </a>
-            <a href="/coin-config" style="margin-left: 14px; color: var(--accent); font-weight: 600; text-decoration: none;">
-                Open Coin Base Config
-            </a>
-            <a href="/coin-chain-config" style="margin-left: 14px; color: var(--accent); font-weight: 600; text-decoration: none;">
-                Open Coin Chain Config
-            </a>
+<main class="container">
+    <section class="panel">
+        <h1>ex-wallet-config</h1>
+        <div class="subtitle">本地中心化交易所钱包的配置中心，当前聚焦币种与链扩展参数配置。</div>
+    </section>
+
+    <section class="panel">
+        <h2 style="margin:0;font-size:20px;">核心配置模块</h2>
+        <div class="grid">
+            <article class="card">
+                <div class="row">
+                    <h2>币种配置</h2>
+                    <span class="tag">Core</span>
+                </div>
+                <div class="desc">维护币种基础信息：币种 ID、简写、全称、精度、图标、启用状态。</div>
+                <a class="btn" href="/coin-config">进入 /coin-config</a>
+            </article>
+            <article class="card">
+                <div class="row">
+                    <h2>币种扩展参数</h2>
+                    <span class="tag">Core</span>
+                </div>
+                <div class="desc">维护链参数：RPC、归集地址、提币地址、精度与扩展字段 JSON。</div>
+                <a class="btn" href="/coin-chain-config">进入 /coin-chain-config</a>
+            </article>
         </div>
-    </header>
-
-    <section class="card">
-        <h2>Create a Note</h2>
-        <form id="noteForm">
-            <input type="text" id="title" placeholder="Title" required />
-            <textarea id="content" rows="4" placeholder="Content" required></textarea>
-            <button type="submit">Save</button>
-        </form>
     </section>
 
-    <section class="card">
-        <h2>Notes</h2>
-        <div id="noteList" class="list"></div>
+    <section class="panel foot">
+        推荐阅读：<code>README.md</code>、<code>README-coin-config.md</code>。项目已收敛为纯配置中心能力。
     </section>
-</div>
-<script src="/app.js"></script>
+</main>
 </body>
 </html>

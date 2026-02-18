@@ -11,16 +11,6 @@ public class PageController {
         return "index";
     }
 
-    @GetMapping("/eth-address")
-    public String ethAddress() {
-        return "eth-address";
-    }
-
-    @GetMapping("/eth-withdraw")
-    public String ethWithdraw() {
-        return "eth-withdraw";
-    }
-
     @GetMapping("/coin-config")
     public String coinConfig() {
         return "coin-config";

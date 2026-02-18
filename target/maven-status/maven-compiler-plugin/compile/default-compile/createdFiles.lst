@@ -1,4 +1,5 @@
 com/example/springdemo/controller/EthWithdrawalApiController$SendWithdrawalRequest.class
+com/example/springdemo/service/EthWithdrawalService$BuildStageResult.class
 com/example/springdemo/service/eth/EthereumChainService.class
 com/example/springdemo/controller/EthWalletApiController$GenerateEthAddressRequest.class
 com/example/springdemo/controller/EthWalletApiController$ErrorResponse.class
@@ -24,5 +25,6 @@ com/example/springdemo/biz/NoteBiz.class
 com/example/springdemo/service/exception/EthWithdrawalException.class
 com/example/springdemo/domain/EthWallet.class
 com/example/springdemo/service/NoteService.class
+com/example/springdemo/service/EthWithdrawalService$SignStageResult.class
 com/example/springdemo/repository/EthWalletRepository.class
 com/example/springdemo/service/eth/EthereumChainService$FeeSuggestion.class

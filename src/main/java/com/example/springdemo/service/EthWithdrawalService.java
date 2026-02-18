@@ -8,7 +8,6 @@ import com.example.springdemo.repository.EthWithdrawalRepository;
 import com.example.springdemo.service.eth.EthereumChainService;
 import com.example.springdemo.service.exception.EthWithdrawalException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.TransactionEncoder;
@@ -23,6 +22,10 @@ import java.util.List;
 @Service
 public class EthWithdrawalService implements EthWithdrawalBiz {
     private static final int MAX_ERROR_MESSAGE_LENGTH = 1000;
+    private static final String STATUS_BUILT = "BUILT";
+    private static final String STATUS_SIGNED = "SIGNED";
+    private static final String STATUS_SUBMITTED = "SUBMITTED";
+    private static final String STATUS_FAILED = "FAILED";
 
     private final EthWalletRepository ethWalletRepository;
     private final EthWithdrawalRepository ethWithdrawalRepository;
@@ -37,73 +40,18 @@ public class EthWithdrawalService implements EthWithdrawalBiz {
     }
 
     @Override
-    @Transactional
     public EthWithdrawal withdraw(Long uid, Long fromWalletId, String toAddress, BigDecimal amountEth) {
-        if (uid == null || uid <= 0) {
-            throw new EthWithdrawalException("uid must be a positive number");
-        }
-        if (fromWalletId == null || fromWalletId <= 0) {
-            throw new EthWithdrawalException("fromWalletId must be a positive number");
-        }
-        if (toAddress == null || !WalletUtils.isValidAddress(toAddress)) {
-            throw new EthWithdrawalException("toAddress is not a valid ethereum address");
-        }
-        if (amountEth == null || amountEth.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new EthWithdrawalException("amountEth must be a positive number");
-        }
-
-        EthWallet fromWallet = ethWalletRepository.findByIdAndUid(fromWalletId, uid)
-            .orElseThrow(() -> new EthWithdrawalException("Selected from address does not exist for this uid"));
-        if (!WalletUtils.isValidAddress(fromWallet.getAddress())) {
-            throw new EthWithdrawalException("from address in database is invalid");
-        }
-
-        BigInteger amountWei = toWei(amountEth);
-        BigInteger nonce = ethereumChainService.getPendingNonce(fromWallet.getAddress());
-        BigInteger gasLimit = ethereumChainService.estimateGasForEthTransfer(
-            fromWallet.getAddress(), toAddress, amountWei
-        );
-        EthereumChainService.FeeSuggestion feeSuggestion = ethereumChainService.suggestEip1559Fees();
-
-        EthWithdrawal withdrawal = new EthWithdrawal(
-            uid,
-            fromWalletId,
-            fromWallet.getAddress(),
-            toAddress,
-            amountWei.toString(),
-            nonce.toString(),
-            gasLimit.toString(),
-            feeSuggestion.maxPriorityFeePerGas().toString(),
-            feeSuggestion.maxFeePerGas().toString()
-        );
-
+        EthWithdrawal withdrawal = null;
         try {
-            Credentials credentials = Credentials.create(Numeric.cleanHexPrefix(fromWallet.getPrivateKey()));
-            RawTransaction rawTransaction = RawTransaction.createEtherTransaction(
-                ethereumChainService.chainId(),
-                nonce,
-                gasLimit,
-                toAddress,
-                amountWei,
-                feeSuggestion.maxPriorityFeePerGas(),
-                feeSuggestion.maxFeePerGas()
-            );
-            byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials);
-            String signedRawTxHex = Numeric.toHexString(signedMessage);
-            String txHash = ethereumChainService.sendRawTransaction(signedRawTxHex);
-
-            withdrawal.setStatus("SUBMITTED");
-            withdrawal.setTxHash(txHash);
-            return ethWithdrawalRepository.save(withdrawal);
+            BuildStageResult buildStageResult = buildStage(uid, fromWalletId, toAddress, amountEth);
+            withdrawal = buildStageResult.withdrawal();
+            SignStageResult signStageResult = signStage(withdrawal, buildStageResult.rawTransaction(), buildStageResult.privateKeyHex());
+            return broadcastStage(withdrawal, signStageResult.signedRawTxHex());
         } catch (EthWithdrawalException e) {
-            withdrawal.setStatus("FAILED");
-            withdrawal.setErrorMessage(truncate(e.getMessage()));
-            ethWithdrawalRepository.save(withdrawal);
+            markFailed(withdrawal, e.getMessage());
             throw e;
         } catch (Exception e) {
-            withdrawal.setStatus("FAILED");
-            withdrawal.setErrorMessage(truncate(e.getMessage()));
-            ethWithdrawalRepository.save(withdrawal);
+            markFailed(withdrawal, e.getMessage());
             throw new EthWithdrawalException("Failed to sign and broadcast transaction", e);
         }
     }
@@ -129,5 +77,96 @@ public class EthWithdrawalService implements EthWithdrawalBiz {
             return message;
         }
         return message.substring(0, MAX_ERROR_MESSAGE_LENGTH);
+    }
+
+    private BuildStageResult buildStage(Long uid, Long fromWalletId, String toAddress, BigDecimal amountEth) {
+        validateRequest(uid, fromWalletId, toAddress, amountEth);
+
+        EthWallet fromWallet = ethWalletRepository.findByIdAndUid(fromWalletId, uid)
+            .orElseThrow(() -> new EthWithdrawalException("Selected from address does not exist for this uid"));
+        if (!WalletUtils.isValidAddress(fromWallet.getAddress())) {
+            throw new EthWithdrawalException("from address in database is invalid");
+        }
+
+        BigInteger amountWei = toWei(amountEth);
+        BigInteger nonce = ethereumChainService.getPendingNonce(fromWallet.getAddress());
+        BigInteger gasLimit = ethereumChainService.estimateGasForEthTransfer(
+            fromWallet.getAddress(), toAddress, amountWei
+        );
+        EthereumChainService.FeeSuggestion feeSuggestion = ethereumChainService.suggestEip1559Fees();
+
+        RawTransaction rawTransaction = RawTransaction.createEtherTransaction(
+            ethereumChainService.chainId(),
+            nonce,
+            gasLimit,
+            toAddress,
+            amountWei,
+            feeSuggestion.maxPriorityFeePerGas(),
+            feeSuggestion.maxFeePerGas()
+        );
+
+        EthWithdrawal withdrawal = new EthWithdrawal(
+            uid,
+            fromWalletId,
+            fromWallet.getAddress(),
+            toAddress,
+            amountWei.toString(),
+            nonce.toString(),
+            gasLimit.toString(),
+            feeSuggestion.maxPriorityFeePerGas().toString(),
+            feeSuggestion.maxFeePerGas().toString()
+        );
+        withdrawal.setStatus(STATUS_BUILT);
+        withdrawal = ethWithdrawalRepository.save(withdrawal);
+
+        return new BuildStageResult(withdrawal, rawTransaction, fromWallet.getPrivateKey());
+    }
+
+    private SignStageResult signStage(EthWithdrawal withdrawal, RawTransaction rawTransaction, String privateKeyHex) {
+        Credentials credentials = Credentials.create(Numeric.cleanHexPrefix(privateKeyHex));
+        byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, credentials);
+        String signedRawTxHex = Numeric.toHexString(signedMessage);
+
+        withdrawal.setStatus(STATUS_SIGNED);
+        ethWithdrawalRepository.save(withdrawal);
+
+        return new SignStageResult(signedRawTxHex);
+    }
+
+    private EthWithdrawal broadcastStage(EthWithdrawal withdrawal, String signedRawTxHex) {
+        String txHash = ethereumChainService.sendRawTransaction(signedRawTxHex);
+        withdrawal.setStatus(STATUS_SUBMITTED);
+        withdrawal.setTxHash(txHash);
+        return ethWithdrawalRepository.save(withdrawal);
+    }
+
+    private void validateRequest(Long uid, Long fromWalletId, String toAddress, BigDecimal amountEth) {
+        if (uid == null || uid <= 0) {
+            throw new EthWithdrawalException("uid must be a positive number");
+        }
+        if (fromWalletId == null || fromWalletId <= 0) {
+            throw new EthWithdrawalException("fromWalletId must be a positive number");
+        }
+        if (toAddress == null || !WalletUtils.isValidAddress(toAddress)) {
+            throw new EthWithdrawalException("toAddress is not a valid ethereum address");
+        }
+        if (amountEth == null || amountEth.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new EthWithdrawalException("amountEth must be a positive number");
+        }
+    }
+
+    private void markFailed(EthWithdrawal withdrawal, String message) {
+        if (withdrawal == null) {
+            return;
+        }
+        withdrawal.setStatus(STATUS_FAILED);
+        withdrawal.setErrorMessage(truncate(message));
+        ethWithdrawalRepository.save(withdrawal);
+    }
+
+    private record BuildStageResult(EthWithdrawal withdrawal, RawTransaction rawTransaction, String privateKeyHex) {
+    }
+
+    private record SignStageResult(String signedRawTxHex) {
     }
 }

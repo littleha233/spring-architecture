@@ -50,31 +50,29 @@
 
 ## 交易构建逻辑（EIP-1559）
 
-在 `EthWithdrawalService` 中执行：
+在 `EthWithdrawalService` 中分为 3 个阶段执行：
 
-1. 校验输入
+1. Build 阶段（交易构建）
 - `uid/fromWalletId` 必须为正整数
 - `toAddress` 必须是合法以太坊地址
 - `amountEth` 必须大于 0
-
-2. 获取 from 钱包
 - 使用 `uid + fromWalletId` 查库，确保用户只能使用自己的地址
-
-3. 构建链上参数
 - `nonce`：通过 `eth_getTransactionCount(PENDING)` 获取
 - `gasLimit`：优先 `eth_estimateGas`，失败回退默认常量
 - `maxPriorityFeePerGas / maxFeePerGas`：
   - 优先链上建议（`eth_maxPriorityFeePerGas` + latest block `baseFee`）
   - 失败回退默认常量
+- 组装 EIP-1559 交易参数并落库，状态置为 `BUILT`
 
-4. 构建、签名、广播
-- 以太币转账交易（EIP-1559 类型）
+2. Sign 阶段（签名）
 - 使用 from 地址对应私钥签名
-- 调用 `eth_sendRawTransaction` 广播
+- 生成 `signedRawTxHex`，状态更新为 `SIGNED`
 
-5. 落库
-- 成功：`status=SUBMITTED`，写入 `txHash`
-- 失败：`status=FAILED`，写入错误信息
+3. Broadcast 阶段（广播）
+- 调用 `eth_sendRawTransaction` 广播
+- 成功：状态更新为 `SUBMITTED`，写入 `txHash`
+- 任一阶段异常：状态更新为 `FAILED`，写入错误信息
+- 各阶段状态会即时落库，便于排查失败阶段
 
 ## 配置项
 
@@ -85,11 +83,17 @@
 eth:
   tx:
     rpc-url: ${ETH_RPC_URL:https://ethereum-rpc.publicnode.com}
+    rpc-urls:
+      - ${ETH_RPC_URL_1:https://ethereum-rpc.publicnode.com}
+      - ${ETH_RPC_URL_2:https://eth.llamarpc.com}
+      - ${ETH_RPC_URL_3:https://eth-mainnet.public.blastapi.io}
     chain-id: ${ETH_CHAIN_ID:1}
     default-gas-limit: ${ETH_DEFAULT_GAS_LIMIT:21000}
     default-max-priority-fee-gwei: ${ETH_DEFAULT_MAX_PRIORITY_FEE_GWEI:2}
     default-max-fee-gwei: ${ETH_DEFAULT_MAX_FEE_GWEI:30}
     estimate-gas-enabled: ${ETH_ESTIMATE_GAS_ENABLED:true}
+    connect-timeout-ms: ${ETH_CONNECT_TIMEOUT_MS:5000}
+    read-timeout-ms: ${ETH_READ_TIMEOUT_MS:10000}
 ```
 
 说明：

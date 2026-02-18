@@ -21,8 +21,8 @@ public class CoinService implements CoinBiz {
     }
 
     @Override
-    public Coin create(String coinId, String symbol, String fullName, Integer coinPrecision, String iconUrl, Boolean enabled) {
-        String normalizedCoinId = requireText(coinId, "coinId");
+    public Coin create(Integer coinId, String symbol, String fullName, Integer coinPrecision, String iconUrl, Boolean enabled) {
+        int normalizedCoinId = validateCoinId(coinId);
         String normalizedSymbol = requireText(symbol, "symbol");
         String normalizedFullName = requireText(fullName, "fullName");
         int normalizedPrecision = validatePrecision(coinPrecision, "coinPrecision");
@@ -45,13 +45,13 @@ public class CoinService implements CoinBiz {
     }
 
     @Override
-    public Coin update(Long id, String coinId, String symbol, String fullName, Integer coinPrecision, String iconUrl, Boolean enabled) {
+    public Coin update(Long id, Integer coinId, String symbol, String fullName, Integer coinPrecision, String iconUrl, Boolean enabled) {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException("id must be a positive number");
         }
         Coin coin = coinRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("coin not found"));
 
-        String normalizedCoinId = requireText(coinId, "coinId");
+        int normalizedCoinId = validateCoinId(coinId);
         String normalizedSymbol = requireText(symbol, "symbol");
         String normalizedFullName = requireText(fullName, "fullName");
         int normalizedPrecision = validatePrecision(coinPrecision, "coinPrecision");
@@ -69,6 +69,13 @@ public class CoinService implements CoinBiz {
         coin.setIconUrl(normalizedIconUrl);
         coin.setEnabled(normalizedEnabled);
         return coinRepository.save(coin);
+    }
+
+    private int validateCoinId(Integer coinId) {
+        if (coinId == null || coinId < 0) {
+            throw new IllegalArgumentException("coinId must be a non-negative integer");
+        }
+        return coinId;
     }
 
     private String requireText(String value, String field) {

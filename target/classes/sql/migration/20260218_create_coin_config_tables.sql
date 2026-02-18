@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS coin (
     id BIGINT NOT NULL AUTO_INCREMENT,
-    coin_id VARCHAR(64) NOT NULL,
+    coin_id INT NOT NULL,
     symbol VARCHAR(32) NOT NULL,
     full_name VARCHAR(128) NOT NULL,
     coin_precision INT NOT NULL,

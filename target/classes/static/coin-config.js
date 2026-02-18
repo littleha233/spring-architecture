@@ -204,8 +204,10 @@ function renderCoinSelect() {
 }
 
 async function saveCoin() {
+    const coinIdRaw = coinIdInput.value.trim();
+    const coinId = Number(coinIdRaw);
     const payload = {
-        coinId: coinIdInput.value.trim(),
+        coinId,
         symbol: coinSymbolInput.value.trim(),
         fullName: coinFullNameInput.value.trim(),
         coinPrecision: Number(coinPrecisionInput.value),
@@ -213,8 +215,8 @@ async function saveCoin() {
         enabled: coinEnabledInput.value === 'true'
     };
 
-    if (!payload.coinId || !payload.symbol || !payload.fullName || !Number.isInteger(payload.coinPrecision) || payload.coinPrecision < 0) {
-        showMessage(coinMsg, 'coinId/symbol/fullName/coinPrecision are required, and precision must be >= 0.');
+    if (!coinIdRaw || !Number.isInteger(coinId) || coinId < 0 || !payload.symbol || !payload.fullName || !Number.isInteger(payload.coinPrecision) || payload.coinPrecision < 0) {
+        showMessage(coinMsg, 'coinId must be >= 0, and symbol/fullName/coinPrecision are required.');
         return;
     }
 

@@ -7,7 +7,7 @@ import java.util.List;
 public interface CoinBiz {
     List<Coin> list();
 
-    Coin create(String coinId, String symbol, String fullName, Integer coinPrecision, String iconUrl, Boolean enabled);
+    Coin create(Integer coinId, String symbol, String fullName, Integer coinPrecision, String iconUrl, Boolean enabled);
 
-    Coin update(Long id, String coinId, String symbol, String fullName, Integer coinPrecision, String iconUrl, Boolean enabled);
+    Coin update(Long id, Integer coinId, String symbol, String fullName, Integer coinPrecision, String iconUrl, Boolean enabled);
 }

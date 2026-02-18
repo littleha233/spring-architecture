@@ -26,8 +26,8 @@ public class Coin {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "coin_id", nullable = false, length = 64)
-    private String coinId;
+    @Column(name = "coin_id", nullable = false)
+    private Integer coinId;
 
     @Column(name = "symbol", nullable = false, length = 32)
     private String symbol;
@@ -54,7 +54,7 @@ public class Coin {
         // for JPA
     }
 
-    public Coin(String coinId, String symbol, String fullName, Integer coinPrecision, String iconUrl, Boolean enabled) {
+    public Coin(Integer coinId, String symbol, String fullName, Integer coinPrecision, String iconUrl, Boolean enabled) {
         this.coinId = coinId;
         this.symbol = symbol;
         this.fullName = fullName;

@@ -78,7 +78,7 @@ public class CoinApiController {
     }
 
     public record SaveCoinRequest(
-        String coinId,
+        Integer coinId,
         String symbol,
         String fullName,
         Integer coinPrecision,

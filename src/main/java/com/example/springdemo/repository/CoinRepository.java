@@ -6,9 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface CoinRepository extends JpaRepository<Coin, Long> {
-    boolean existsByCoinId(String coinId);
+    boolean existsByCoinId(Integer coinId);
 
-    boolean existsByCoinIdAndIdNot(String coinId, Long id);
+    boolean existsByCoinIdAndIdNot(Integer coinId, Long id);
 
     List<Coin> findAllByOrderByIdDesc();
 }

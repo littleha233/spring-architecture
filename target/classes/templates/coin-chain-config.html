@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>币种扩展参数配置</title>
+    <link rel="stylesheet" href="/config-layout.css">
     <style>
         :root {
             --bg: #f3f6fb;
@@ -25,22 +26,6 @@
                         var(--bg);
             color: var(--ink);
             font-family: "PingFang SC", "Noto Sans SC", "Segoe UI", sans-serif;
-        }
-
-        .page {
-            max-width: 1360px;
-            margin: 22px auto;
-            padding: 0 14px;
-            display: grid;
-            gap: 14px;
-        }
-
-        .panel {
-            background: var(--panel);
-            border: 1px solid var(--line);
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
-            padding: 14px;
         }
 
         .title-row {
@@ -150,13 +135,6 @@
             margin-top: 6px;
         }
 
-        .nav a {
-            color: var(--primary);
-            text-decoration: none;
-            margin-right: 12px;
-            font-weight: 600;
-        }
-
         .modal-mask {
             position: fixed;
             inset: 0;
@@ -217,69 +195,84 @@
     </style>
 </head>
 <body>
-<main class="page">
-    <section class="panel">
-        <div class="title-row">
-            <div>
-                <h1>币种扩展参数配置</h1>
-                <div class="hint">扩展字段支持 JSON 输入，也可通过“展开KV”打开二级弹窗按 key/value 维护。</div>
-            </div>
-            <div class="nav">
-                <a href="/coin-config">币种配置</a>
-                <a href="/">返回首页</a>
-            </div>
-        </div>
-    </section>
+<div class="app-shell">
+    <aside class="sidebar">
+        <h2 class="sidebar-title">配置中心</h2>
+        <nav class="sidebar-nav">
+            <a class="sidebar-link" href="/coin-config">币种配置</a>
+            <a class="sidebar-link" href="/blockchain-config">区块链配置</a>
+            <a class="sidebar-link active" href="/coin-chain-config">币种扩展参数配置</a>
+            <a class="sidebar-link" href="/">首页</a>
+        </nav>
+    </aside>
 
-    <section class="panel">
-        <div class="filters">
-            <div class="field">
-                <label for="filterCoinSelect">币种</label>
-                <select id="filterCoinSelect"></select>
-            </div>
-            <div class="field">
-                <label for="filterChainCode">链名称/链简称</label>
-                <input id="filterChainCode" type="text" placeholder="例如 ETH">
-            </div>
-            <div class="field">
-                <label for="filterEnabled">状态</label>
-                <select id="filterEnabled">
-                    <option value="all">全部</option>
-                    <option value="true">启用</option>
-                    <option value="false">禁用</option>
-                </select>
-            </div>
-            <div class="field">
-                <label>操作</label>
-                <div class="btns">
-                    <button id="searchBtn" type="button">查询</button>
-                    <button id="resetFilterBtn" type="button" class="ghost">重置</button>
-                    <button id="addConfigBtn" type="button">新增扩展参数</button>
+    <main class="content-shell">
+        <div class="content-wrap">
+            <section class="panel">
+                <div class="title-row">
+                    <div>
+                        <h1>币种扩展参数配置</h1>
+                        <div class="hint">扩展字段支持 JSON 输入，也可通过“展开KV”打开二级弹窗按 key/value 维护。</div>
+                    </div>
+                    <div class="top-links">
+                        <a href="/coin-config">币种配置</a>
+                        <a href="/blockchain-config">区块链配置</a>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div id="pageMsg" class="msg"></div>
-    </section>
+            </section>
 
-    <section class="panel">
-        <table>
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>币种</th>
-                <th>链</th>
-                <th>RPC</th>
-                <th>最小提币/精度</th>
-                <th>最小充值/精度</th>
-                <th>扩展字段(JSON)</th>
-                <th>状态</th>
-                <th>操作</th>
-            </tr>
-            </thead>
-            <tbody id="chainTableBody"></tbody>
-        </table>
-    </section>
-</main>
+            <section class="panel">
+                <div class="filters">
+                    <div class="field">
+                        <label for="filterCoinSelect">币种</label>
+                        <select id="filterCoinSelect"></select>
+                    </div>
+                    <div class="field">
+                        <label for="filterChainCode">链简称/链全称</label>
+                        <input id="filterChainCode" type="text" placeholder="例如 ETH / Ethereum">
+                    </div>
+                    <div class="field">
+                        <label for="filterEnabled">状态</label>
+                        <select id="filterEnabled">
+                            <option value="all">全部</option>
+                            <option value="true">启用</option>
+                            <option value="false">禁用</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>操作</label>
+                        <div class="btns">
+                            <button id="searchBtn" type="button">查询</button>
+                            <button id="resetFilterBtn" type="button" class="ghost">重置</button>
+                            <button id="addConfigBtn" type="button">新增扩展参数</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="pageMsg" class="msg"></div>
+            </section>
+
+            <section class="panel">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>币种</th>
+                        <th>链简称</th>
+                        <th>链全称</th>
+                        <th>RPC</th>
+                        <th>最小提币/精度</th>
+                        <th>最小充值/精度</th>
+                        <th>扩展字段(JSON)</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody id="chainTableBody"></tbody>
+                </table>
+            </section>
+        </div>
+    </main>
+</div>
 
 <div id="chainModalMask" class="modal-mask">
     <div class="modal">
@@ -295,7 +288,13 @@
             </div>
             <div class="field">
                 <label for="chainCodeInput">链简称</label>
-                <input id="chainCodeInput" type="text" placeholder="ETH / BSC / SOL">
+                <select id="chainCodeInput">
+                    <option value="">请选择链简称</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="chainNameInput">链全称</label>
+                <input id="chainNameInput" type="text" placeholder="自动带出" readonly>
             </div>
             <div class="field span-2">
                 <label for="rpcUrlInput">RPC URL</label>

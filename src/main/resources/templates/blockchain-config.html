@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>币种配置</title>
+    <title>区块链配置</title>
     <link rel="stylesheet" href="/config-layout.css">
     <style>
         :root {
@@ -14,7 +14,6 @@
             --muted: #5f6b7a;
             --primary: #0f6cbd;
             --primary-hover: #0a4f8f;
-            --danger: #b42318;
         }
 
         * { box-sizing: border-box; }
@@ -36,21 +35,14 @@
             gap: 10px;
         }
 
-        .title-row h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-
+        h1 { margin: 0; font-size: 24px; }
         .hint { color: var(--muted); font-size: 13px; }
 
-        .toolbar, .filters {
+        .filters {
+            margin-top: 10px;
             display: grid;
             gap: 10px;
-        }
-
-        .filters {
             grid-template-columns: repeat(4, minmax(180px, 1fr));
-            margin-top: 10px;
         }
 
         .field {
@@ -70,6 +62,7 @@
             padding: 8px 10px;
             font-size: 14px;
             background: #fff;
+            font-family: inherit;
         }
 
         .btns {
@@ -91,7 +84,6 @@
 
         button:hover { background: var(--primary-hover); }
         .ghost { background: #475467; }
-        .danger { background: var(--danger); }
 
         table {
             width: 100%;
@@ -114,14 +106,6 @@
             font-size: 13px;
         }
 
-        .icon-cell {
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            border: 1px solid var(--line);
-            object-fit: cover;
-        }
-
         .modal-mask {
             position: fixed;
             inset: 0;
@@ -136,7 +120,7 @@
         .modal-mask.show { display: flex; }
 
         .modal {
-            width: min(760px, 100%);
+            width: min(720px, 100%);
             background: #fff;
             border-radius: 12px;
             border: 1px solid var(--line);
@@ -149,31 +133,6 @@
             display: grid;
             grid-template-columns: repeat(2, minmax(220px, 1fr));
             gap: 10px;
-        }
-
-        .upload-line {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .preview {
-            margin-top: 8px;
-            display: none;
-            align-items: center;
-            gap: 10px;
-            color: var(--muted);
-            font-size: 12px;
-        }
-
-        .preview.show { display: flex; }
-
-        .preview img {
-            width: 34px;
-            height: 34px;
-            border-radius: 8px;
-            border: 1px solid var(--line);
-            object-fit: cover;
         }
 
         @media (max-width: 900px) {
@@ -195,8 +154,8 @@
     <aside class="sidebar">
         <h2 class="sidebar-title">配置中心</h2>
         <nav class="sidebar-nav">
-            <a class="sidebar-link active" href="/coin-config">币种配置</a>
-            <a class="sidebar-link" href="/blockchain-config">区块链配置</a>
+            <a class="sidebar-link" href="/coin-config">币种配置</a>
+            <a class="sidebar-link active" href="/blockchain-config">区块链配置</a>
             <a class="sidebar-link" href="/coin-chain-config">币种扩展参数配置</a>
             <a class="sidebar-link" href="/">首页</a>
         </nav>
@@ -207,25 +166,25 @@
             <section class="panel">
                 <div class="title-row">
                     <div>
-                        <h1>币种配置</h1>
-                        <div class="hint">独立管理币种基础信息，按列表查看与编辑。</div>
+                        <h1>区块链配置</h1>
+                        <div class="hint">维护区块链简称与全称映射，例如 ETH-Ethereum、BSC-Binance Smart Chain。</div>
                     </div>
                     <div class="top-links">
-                        <a href="/blockchain-config">区块链配置</a>
+                        <a href="/coin-config">币种配置</a>
                         <a href="/coin-chain-config">币种扩展参数配置</a>
                     </div>
                 </div>
             </section>
 
-            <section class="panel toolbar">
+            <section class="panel">
                 <div class="filters">
                     <div class="field">
-                        <label for="filterCoinId">币种 ID</label>
-                        <input id="filterCoinId" type="number" min="0" step="1" placeholder="例如 0">
+                        <label for="filterChainCode">区块链简称</label>
+                        <input id="filterChainCode" type="text" placeholder="例如 ETH">
                     </div>
                     <div class="field">
-                        <label for="filterSymbol">币种简称</label>
-                        <input id="filterSymbol" type="text" placeholder="例如 USDT">
+                        <label for="filterChainName">区块链全称</label>
+                        <input id="filterChainName" type="text" placeholder="例如 Ethereum">
                     </div>
                     <div class="field">
                         <label for="filterEnabled">状态</label>
@@ -240,7 +199,7 @@
                         <div class="btns">
                             <button id="searchBtn" type="button">查询</button>
                             <button id="resetFilterBtn" type="button" class="ghost">重置</button>
-                            <button id="addCoinBtn" type="button">新增币种</button>
+                            <button id="addChainBtn" type="button">新增区块链</button>
                         </div>
                     </div>
                 </div>
@@ -252,62 +211,39 @@
                     <thead>
                     <tr>
                         <th>ID</th>
-                        <th>币种ID</th>
-                        <th>简称</th>
-                        <th>全称</th>
-                        <th>精度</th>
-                        <th>图标</th>
+                        <th>区块链简称</th>
+                        <th>区块链全称</th>
                         <th>状态</th>
                         <th>更新时间</th>
                         <th>操作</th>
                     </tr>
                     </thead>
-                    <tbody id="coinTableBody"></tbody>
+                    <tbody id="chainTableBody"></tbody>
                 </table>
             </section>
         </div>
     </main>
 </div>
 
-<div id="coinModalMask" class="modal-mask">
+<div id="chainModalMask" class="modal-mask">
     <div class="modal">
         <div class="title-row">
-            <h2 id="coinModalTitle" style="margin:0;font-size:20px;">新增币种</h2>
+            <h2 id="chainModalTitle" style="margin:0;font-size:20px;">新增区块链</h2>
             <button id="closeModalBtn" type="button" class="ghost">关闭</button>
         </div>
 
         <div class="modal-grid">
             <div class="field">
-                <label for="coinIdInput">币种 ID</label>
-                <input id="coinIdInput" type="number" min="0" step="1" placeholder="从0开始">
+                <label for="chainCodeInput">区块链简称</label>
+                <input id="chainCodeInput" type="text" placeholder="ETH / BSC / SOL">
             </div>
             <div class="field">
-                <label for="coinSymbolInput">币种简称</label>
-                <input id="coinSymbolInput" type="text" placeholder="USDT">
+                <label for="chainNameInput">区块链全称</label>
+                <input id="chainNameInput" type="text" placeholder="Ethereum / Binance Smart Chain / Solana">
             </div>
             <div class="field">
-                <label for="coinFullNameInput">币种全称</label>
-                <input id="coinFullNameInput" type="text" placeholder="Tether USD">
-            </div>
-            <div class="field">
-                <label for="coinPrecisionInput">币种精度</label>
-                <input id="coinPrecisionInput" type="number" min="0" step="1" placeholder="6">
-            </div>
-            <div class="field" style="grid-column: span 2;">
-                <label for="coinIconFileInput">币种图标上传</label>
-                <div class="upload-line">
-                    <input id="coinIconFileInput" type="file" accept="image/*">
-                    <button id="uploadCoinIconBtn" type="button">上传图标</button>
-                </div>
-                <input id="coinIconUrlInput" type="text" placeholder="上传后自动回填" readonly style="margin-top:8px;">
-                <div id="iconPreview" class="preview">
-                    <img id="iconPreviewImage" alt="icon preview">
-                    <span>已上传</span>
-                </div>
-            </div>
-            <div class="field">
-                <label for="coinEnabledInput">状态</label>
-                <select id="coinEnabledInput">
+                <label for="enabledInput">状态</label>
+                <select id="enabledInput">
                     <option value="true">启用</option>
                     <option value="false">禁用</option>
                 </select>
@@ -315,13 +251,13 @@
         </div>
 
         <div class="btns" style="margin-top:12px;">
-            <button id="saveCoinBtn" type="button">保存</button>
+            <button id="saveChainBtn" type="button">保存</button>
             <button id="resetFormBtn" type="button" class="ghost">重置</button>
         </div>
         <div id="modalMsg" class="msg"></div>
     </div>
 </div>
 
-<script src="/coin-config.js"></script>
+<script src="/blockchain-config.js"></script>
 </body>
 </html>

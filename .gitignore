@@ -1,0 +1,22 @@
+# Maven / Java build outputs
+target/
+out/
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IntelliJ IDEA
+.idea/
+
+# Local runtime/config artifacts
+uploads/
+*.pid

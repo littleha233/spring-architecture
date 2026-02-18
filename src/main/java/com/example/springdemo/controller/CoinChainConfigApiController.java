@@ -36,6 +36,7 @@ public class CoinChainConfigApiController {
         return coinChainConfigBiz.create(
             request.coinId(),
             request.chainCode(),
+            request.chainName(),
             request.rpcUrl(),
             request.collectionAddress(),
             request.withdrawAddress(),
@@ -54,6 +55,7 @@ public class CoinChainConfigApiController {
             id,
             request.coinId(),
             request.chainCode(),
+            request.chainName(),
             request.rpcUrl(),
             request.collectionAddress(),
             request.withdrawAddress(),
@@ -74,6 +76,7 @@ public class CoinChainConfigApiController {
     public record SaveCoinChainConfigRequest(
         Long coinId,
         String chainCode,
+        String chainName,
         String rpcUrl,
         String collectionAddress,
         String withdrawAddress,

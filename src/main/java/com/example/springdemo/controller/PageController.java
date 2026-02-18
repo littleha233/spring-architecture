@@ -20,4 +20,9 @@ public class PageController {
     public String coinChainConfig() {
         return "coin-chain-config";
     }
+
+    @GetMapping("/blockchain-config")
+    public String blockchainConfig() {
+        return "blockchain-config";
+    }
 }

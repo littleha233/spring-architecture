@@ -12,6 +12,7 @@ const chainModalTitle = document.getElementById('chainModalTitle');
 const closeModalBtn = document.getElementById('closeModalBtn');
 const formCoinSelect = document.getElementById('formCoinSelect');
 const chainCodeInput = document.getElementById('chainCodeInput');
+const chainNameInput = document.getElementById('chainNameInput');
 const rpcUrlInput = document.getElementById('rpcUrlInput');
 const collectionAddressInput = document.getElementById('collectionAddressInput');
 const withdrawAddressInput = document.getElementById('withdrawAddressInput');
@@ -37,11 +38,13 @@ const kvMsg = document.getElementById('kvMsg');
 
 let coins = [];
 let coinMap = new Map();
+let blockchains = [];
+let blockchainMap = new Map();
 let chainConfigs = [];
 let filteredChainConfigs = [];
 let currentEditId = null;
 let currentEditSnapshot = null;
-let kvContext = null; // { mode: 'form' } or { mode: 'row', configId }
+let kvContext = null;
 
 function showMsg(el, text) {
     el.textContent = text || '';
@@ -137,9 +140,11 @@ function parseConfigExtraJsonObject(config) {
 }
 
 function configToUpdatePayload(config, extraJsonCompactText) {
+    const chainFromMap = blockchainMap.get(String(config.chainCode || '').toUpperCase());
     return {
         coinId: config.coinId,
         chainCode: config.chainCode,
+        chainName: config.chainName || (chainFromMap ? chainFromMap.chainName : ''),
         rpcUrl: config.rpcUrl,
         collectionAddress: config.collectionAddress,
         withdrawAddress: config.withdrawAddress,
@@ -181,6 +186,34 @@ function renderCoinSelects() {
     }
 }
 
+function renderChainSelect() {
+    const previousValue = chainCodeInput.value;
+    chainCodeInput.innerHTML = '<option value="">请选择链简称</option>';
+
+    blockchains.forEach((item) => {
+        const option = document.createElement('option');
+        option.value = item.chainCode;
+        option.textContent = `${item.chainCode} - ${item.chainName}${item.enabled ? '' : '（禁用）'}`;
+        option.disabled = item.enabled === false;
+        chainCodeInput.appendChild(option);
+    });
+
+    if (previousValue && [...chainCodeInput.options].some((item) => item.value === previousValue)) {
+        chainCodeInput.value = previousValue;
+    }
+    syncChainNameByCode();
+}
+
+function syncChainNameByCode() {
+    const selectedCode = chainCodeInput.value;
+    if (!selectedCode) {
+        chainNameInput.value = '';
+        return;
+    }
+    const chain = blockchainMap.get(selectedCode.toUpperCase());
+    chainNameInput.value = chain ? chain.chainName : '';
+}
+
 async function loadCoins() {
     const response = await fetch('/api/coins');
     if (!response.ok) {
@@ -189,6 +222,16 @@ async function loadCoins() {
     coins = await response.json();
     coinMap = new Map(coins.map((coin) => [coin.id, coin]));
     renderCoinSelects();
+}
+
+async function loadBlockchains() {
+    const response = await fetch('/api/blockchain-configs');
+    if (!response.ok) {
+        throw new Error(await parseError(response, '加载区块链配置失败'));
+    }
+    blockchains = await response.json();
+    blockchainMap = new Map(blockchains.map((item) => [String(item.chainCode || '').toUpperCase(), item]));
+    renderChainSelect();
 }
 
 async function loadChainConfigs() {
@@ -207,7 +250,9 @@ function applyFilter() {
     const enabledValue = filterEnabled.value;
 
     filteredChainConfigs = chainConfigs.filter((config) => {
-        if (chainKeyword && !String(config.chainCode || '').toUpperCase().includes(chainKeyword)) {
+        const code = String(config.chainCode || '').toUpperCase();
+        const name = String(config.chainName || '').toUpperCase();
+        if (chainKeyword && !code.includes(chainKeyword) && !name.includes(chainKeyword)) {
             return false;
         }
         if (enabledValue !== 'all' && String(config.enabled) !== enabledValue) {
@@ -237,7 +282,7 @@ function getJsonPreview(config) {
 function renderTable() {
     chainTableBody.innerHTML = '';
     if (!filteredChainConfigs.length) {
-        chainTableBody.innerHTML = '<tr><td colspan="9">暂无数据</td></tr>';
+        chainTableBody.innerHTML = '<tr><td colspan="10">暂无数据</td></tr>';
         return;
     }
 
@@ -246,6 +291,7 @@ function renderTable() {
             <td>${config.id}</td>
             <td>${escapeHtml(coinLabel(config.coinId))}</td>
             <td>${escapeHtml(config.chainCode)}</td>
+            <td>${escapeHtml(config.chainName || '-')}</td>
             <td>${escapeHtml(config.rpcUrl)}</td>
             <td>${escapeHtml(config.minWithdrawAmount)} / ${config.withdrawPrecision}</td>
             <td>${escapeHtml(config.minDepositAmount)} / ${config.depositPrecision}</td>
@@ -266,6 +312,7 @@ function clearForm() {
     currentEditSnapshot = null;
     formCoinSelect.value = '';
     chainCodeInput.value = '';
+    chainNameInput.value = '';
     rpcUrlInput.value = '';
     collectionAddressInput.value = '';
     withdrawAddressInput.value = '';
@@ -300,6 +347,8 @@ async function openEditModal(config) {
 
     formCoinSelect.value = String(config.coinId);
     chainCodeInput.value = config.chainCode || '';
+    syncChainNameByCode();
+    chainNameInput.value = config.chainName || chainNameInput.value;
     rpcUrlInput.value = config.rpcUrl || '';
     collectionAddressInput.value = config.collectionAddress || '';
     withdrawAddressInput.value = config.withdrawAddress || '';
@@ -422,6 +471,7 @@ async function saveConfig() {
     const payload = {
         coinId,
         chainCode: chainCodeInput.value.trim(),
+        chainName: chainNameInput.value.trim(),
         rpcUrl: rpcUrlInput.value.trim(),
         collectionAddress: collectionAddressInput.value.trim(),
         withdrawAddress: withdrawAddressInput.value.trim(),
@@ -437,8 +487,12 @@ async function saveConfig() {
         showMsg(modalMsg, '请选择有效币种');
         return;
     }
-    if (!payload.chainCode || !payload.rpcUrl || !payload.collectionAddress || !payload.withdrawAddress) {
-        showMsg(modalMsg, 'chainCode/rpcUrl/collectionAddress/withdrawAddress 必填');
+    if (!payload.chainCode || !payload.chainName) {
+        showMsg(modalMsg, '请选择区块链简称并自动带出链全称');
+        return;
+    }
+    if (!payload.rpcUrl || !payload.collectionAddress || !payload.withdrawAddress) {
+        showMsg(modalMsg, 'rpcUrl/collectionAddress/withdrawAddress 必填');
         return;
     }
     if (!minWithdrawAmount || !Number.isFinite(Number(minWithdrawAmount)) || Number(minWithdrawAmount) < 0) {
@@ -556,6 +610,7 @@ resetFilterBtn.addEventListener('click', async () => {
 
 addConfigBtn.addEventListener('click', openCreateModal);
 closeModalBtn.addEventListener('click', closeModal);
+chainCodeInput.addEventListener('change', syncChainNameByCode);
 chainModalMask.addEventListener('click', (event) => {
     if (event.target === chainModalMask) {
         closeModal();
@@ -651,7 +706,7 @@ applyKvBtn.addEventListener('click', async () => {
 
 (async function bootstrap() {
     try {
-        await loadCoins();
+        await Promise.all([loadCoins(), loadBlockchains()]);
         await loadChainConfigs();
     } catch (error) {
         showMsg(pageMsg, error.message || '初始化失败');

@@ -33,6 +33,9 @@ public class CoinChainConfig {
     @Column(name = "chain_code", nullable = false, length = 32)
     private String chainCode;
 
+    @Column(name = "chain_name", nullable = false, length = 128)
+    private String chainName;
+
     @Column(name = "rpc_url", nullable = false, length = 512)
     private String rpcUrl;
 
@@ -70,11 +73,12 @@ public class CoinChainConfig {
         // for JPA
     }
 
-    public CoinChainConfig(Long coinId, String chainCode, String rpcUrl, String collectionAddress,
+    public CoinChainConfig(Long coinId, String chainCode, String chainName, String rpcUrl, String collectionAddress,
                            String withdrawAddress, BigDecimal minWithdrawAmount, Integer withdrawPrecision,
                            BigDecimal minDepositAmount, Integer depositPrecision, String extraJson, Boolean enabled) {
         this.coinId = coinId;
         this.chainCode = chainCode;
+        this.chainName = chainName;
         this.rpcUrl = rpcUrl;
         this.collectionAddress = collectionAddress;
         this.withdrawAddress = withdrawAddress;

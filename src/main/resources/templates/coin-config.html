@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>币种配置</title>
+    <link rel="stylesheet" href="/config-layout.css">
     <style>
         :root {
             --bg: #f3f6fb;
@@ -25,22 +26,6 @@
                         var(--bg);
             color: var(--ink);
             font-family: "PingFang SC", "Noto Sans SC", "Segoe UI", sans-serif;
-        }
-
-        .page {
-            max-width: 1200px;
-            margin: 22px auto;
-            padding: 0 14px;
-            display: grid;
-            gap: 14px;
-        }
-
-        .panel {
-            background: var(--panel);
-            border: 1px solid var(--line);
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
-            padding: 14px;
         }
 
         .title-row {
@@ -129,13 +114,6 @@
             font-size: 13px;
         }
 
-        .nav a {
-            color: var(--primary);
-            text-decoration: none;
-            margin-right: 12px;
-            font-weight: 600;
-        }
-
         .icon-cell {
             width: 28px;
             height: 28px;
@@ -213,69 +191,83 @@
     </style>
 </head>
 <body>
-<main class="page">
-    <section class="panel">
-        <div class="title-row">
-            <div>
-                <h1>币种配置</h1>
-                <div class="hint">独立管理币种基础信息，按列表查看与编辑。</div>
-            </div>
-            <div class="nav">
-                <a href="/coin-chain-config">币种扩展参数配置</a>
-                <a href="/">返回首页</a>
-            </div>
-        </div>
-    </section>
+<div class="app-shell">
+    <aside class="sidebar">
+        <h2 class="sidebar-title">配置中心</h2>
+        <nav class="sidebar-nav">
+            <a class="sidebar-link active" href="/coin-config">币种配置</a>
+            <a class="sidebar-link" href="/blockchain-config">区块链配置</a>
+            <a class="sidebar-link" href="/coin-chain-config">币种扩展参数配置</a>
+            <a class="sidebar-link" href="/">首页</a>
+        </nav>
+    </aside>
 
-    <section class="panel toolbar">
-        <div class="filters">
-            <div class="field">
-                <label for="filterCoinId">币种 ID</label>
-                <input id="filterCoinId" type="number" min="0" step="1" placeholder="例如 0">
-            </div>
-            <div class="field">
-                <label for="filterSymbol">币种简称</label>
-                <input id="filterSymbol" type="text" placeholder="例如 USDT">
-            </div>
-            <div class="field">
-                <label for="filterEnabled">状态</label>
-                <select id="filterEnabled">
-                    <option value="all">全部</option>
-                    <option value="true">启用</option>
-                    <option value="false">禁用</option>
-                </select>
-            </div>
-            <div class="field">
-                <label>操作</label>
-                <div class="btns">
-                    <button id="searchBtn" type="button">查询</button>
-                    <button id="resetFilterBtn" type="button" class="ghost">重置</button>
-                    <button id="addCoinBtn" type="button">新增币种</button>
+    <main class="content-shell">
+        <div class="content-wrap">
+            <section class="panel">
+                <div class="title-row">
+                    <div>
+                        <h1>币种配置</h1>
+                        <div class="hint">独立管理币种基础信息，按列表查看与编辑。</div>
+                    </div>
+                    <div class="top-links">
+                        <a href="/blockchain-config">区块链配置</a>
+                        <a href="/coin-chain-config">币种扩展参数配置</a>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div id="pageMsg" class="msg"></div>
-    </section>
+            </section>
 
-    <section class="panel">
-        <table>
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>币种ID</th>
-                <th>简称</th>
-                <th>全称</th>
-                <th>精度</th>
-                <th>图标</th>
-                <th>状态</th>
-                <th>更新时间</th>
-                <th>操作</th>
-            </tr>
-            </thead>
-            <tbody id="coinTableBody"></tbody>
-        </table>
-    </section>
-</main>
+            <section class="panel toolbar">
+                <div class="filters">
+                    <div class="field">
+                        <label for="filterCoinId">币种 ID</label>
+                        <input id="filterCoinId" type="number" min="0" step="1" placeholder="例如 0">
+                    </div>
+                    <div class="field">
+                        <label for="filterSymbol">币种简称</label>
+                        <input id="filterSymbol" type="text" placeholder="例如 USDT">
+                    </div>
+                    <div class="field">
+                        <label for="filterEnabled">状态</label>
+                        <select id="filterEnabled">
+                            <option value="all">全部</option>
+                            <option value="true">启用</option>
+                            <option value="false">禁用</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>操作</label>
+                        <div class="btns">
+                            <button id="searchBtn" type="button">查询</button>
+                            <button id="resetFilterBtn" type="button" class="ghost">重置</button>
+                            <button id="addCoinBtn" type="button">新增币种</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="pageMsg" class="msg"></div>
+            </section>
+
+            <section class="panel">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>币种ID</th>
+                        <th>简称</th>
+                        <th>全称</th>
+                        <th>精度</th>
+                        <th>图标</th>
+                        <th>状态</th>
+                        <th>更新时间</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody id="coinTableBody"></tbody>
+                </table>
+            </section>
+        </div>
+    </main>
+</div>
 
 <div id="coinModalMask" class="modal-mask">
     <div class="modal">

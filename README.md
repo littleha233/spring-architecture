@@ -53,3 +53,4 @@ SQL 文件：
 
 - `README-coin-config.md`
 - `README-facade.md`
+- `README-blockchain-repository.md`

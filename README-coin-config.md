@@ -10,7 +10,7 @@
 已实现能力：
 - 币种配置：维护币种 ID、简称、全称、精度、图标、启用状态
 - 区块链配置：维护区块链业务ID、简称与全称（如 `0-ETH-Ethereum`、`1-BSC-Binance Smart Chain`）
-- 币种扩展参数配置：选择链简称后自动带出链全称，并保存到扩展参数记录中
+- 币种扩展参数配置：选择链简称后自动带出区块链ID与链全称，并保存到扩展参数记录中
 - 扩展字段统一保存到 `coin_chain_config.extra_json`
 
 页面入口：
@@ -42,12 +42,14 @@
 - 新表 `blockchain_config`
 - 字段 `blockchain_config.blockchain_id`
 - 字段 `coin_chain_config.chain_name`
+- 字段 `coin_chain_config.blockchain_id`
 
 SQL 文件：
 - `src/main/resources/sql/schema.sql`
 - `src/main/resources/sql/migration/20260218_create_coin_config_tables.sql`
 - `src/main/resources/sql/migration/20260218_add_blockchain_config_and_chain_name.sql`
 - `src/main/resources/sql/migration/20260219_add_blockchain_business_id.sql`
+- `src/main/resources/sql/migration/20260219_optimize_table_column_order_and_add_coin_chain_blockchain_id.sql`
 
 ## 4. API 说明
 
@@ -82,6 +84,7 @@ SQL 文件：
 ```json
 {
   "coinId": 1,
+  "blockchainId": 0,
   "chainCode": "ETH",
   "chainName": "Ethereum",
   "rpcUrl": "https://eth.llamarpc.com",

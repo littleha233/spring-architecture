@@ -35,6 +35,7 @@ public class CoinChainConfigApiController {
     public CoinChainConfig create(@RequestBody SaveCoinChainConfigRequest request) {
         return coinChainConfigBiz.create(
             request.coinId(),
+            request.blockchainId(),
             request.chainCode(),
             request.chainName(),
             request.rpcUrl(),
@@ -54,6 +55,7 @@ public class CoinChainConfigApiController {
         return coinChainConfigBiz.update(
             id,
             request.coinId(),
+            request.blockchainId(),
             request.chainCode(),
             request.chainName(),
             request.rpcUrl(),
@@ -75,6 +77,7 @@ public class CoinChainConfigApiController {
 
     public record SaveCoinChainConfigRequest(
         Long coinId,
+        Integer blockchainId,
         String chainCode,
         String chainName,
         String rpcUrl,

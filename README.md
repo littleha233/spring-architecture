@@ -43,6 +43,7 @@ SQL 文件：
 - 扩展字段合并：`src/main/resources/sql/migration/20260218_merge_coin_chain_extra_into_json.sql`
 - 新增区块链配置与链全称字段：`src/main/resources/sql/migration/20260218_add_blockchain_config_and_chain_name.sql`
 - 新增区块链业务ID：`src/main/resources/sql/migration/20260219_add_blockchain_business_id.sql`
+- 优化字段顺序并新增扩展参数区块链ID：`src/main/resources/sql/migration/20260219_optimize_table_column_order_and_add_coin_chain_blockchain_id.sql`
 - 收敛清理旧表：`src/main/resources/sql/migration/20260218_drop_non_config_tables.sql`
 
 ## 说明文档

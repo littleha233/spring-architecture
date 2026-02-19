@@ -41,21 +41,22 @@ public class CoinChainConfigService implements CoinChainConfigBiz {
     }
 
     @Override
-    public CoinChainConfig create(Long coinId, String chainCode, String chainName, String rpcUrl,
+    public CoinChainConfig create(Long coinId, Integer blockchainId, String chainCode, String chainName, String rpcUrl,
                                   String collectionAddress, String withdrawAddress,
                                   BigDecimal minWithdrawAmount, Integer withdrawPrecision,
                                   BigDecimal minDepositAmount, Integer depositPrecision, String extraJson, Boolean enabled) {
         validateCoinExists(coinId);
-        BlockchainConfig blockchainConfig = validateAndResolveBlockchain(chainCode, chainName);
-        String normalizedChainCode = blockchainConfig.getChainCode();
+        BlockchainConfig blockchainConfig = validateAndResolveBlockchain(blockchainId, chainCode, chainName);
+        Integer normalizedBlockchainId = blockchainConfig.getBlockchainId();
 
-        if (coinChainConfigRepository.existsByCoinIdAndChainCodeIgnoreCase(coinId, normalizedChainCode)) {
-            throw new IllegalArgumentException("chain config already exists for this coin and chainCode");
+        if (coinChainConfigRepository.existsByCoinIdAndBlockchainId(coinId, normalizedBlockchainId)) {
+            throw new IllegalArgumentException("chain config already exists for this coin and blockchainId");
         }
 
         CoinChainConfig config = new CoinChainConfig(
             coinId,
-            normalizedChainCode,
+            normalizedBlockchainId,
+            blockchainConfig.getChainCode(),
             blockchainConfig.getChainName(),
             requireText(rpcUrl, "rpcUrl"),
             requireText(collectionAddress, "collectionAddress"),
@@ -71,7 +72,7 @@ public class CoinChainConfigService implements CoinChainConfigBiz {
     }
 
     @Override
-    public CoinChainConfig update(Long id, Long coinId, String chainCode, String chainName, String rpcUrl,
+    public CoinChainConfig update(Long id, Long coinId, Integer blockchainId, String chainCode, String chainName, String rpcUrl,
                                   String collectionAddress, String withdrawAddress,
                                   BigDecimal minWithdrawAmount, Integer withdrawPrecision,
                                   BigDecimal minDepositAmount, Integer depositPrecision, String extraJson, Boolean enabled) {
@@ -80,14 +81,15 @@ public class CoinChainConfigService implements CoinChainConfigBiz {
         CoinChainConfig config = coinChainConfigRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("coin chain config not found"));
 
-        BlockchainConfig blockchainConfig = validateAndResolveBlockchain(chainCode, chainName);
-        String normalizedChainCode = blockchainConfig.getChainCode();
-        if (coinChainConfigRepository.existsByCoinIdAndChainCodeIgnoreCaseAndIdNot(coinId, normalizedChainCode, id)) {
-            throw new IllegalArgumentException("chain config already exists for this coin and chainCode");
+        BlockchainConfig blockchainConfig = validateAndResolveBlockchain(blockchainId, chainCode, chainName);
+        Integer normalizedBlockchainId = blockchainConfig.getBlockchainId();
+        if (coinChainConfigRepository.existsByCoinIdAndBlockchainIdAndIdNot(coinId, normalizedBlockchainId, id)) {
+            throw new IllegalArgumentException("chain config already exists for this coin and blockchainId");
         }
 
         config.setCoinId(coinId);
-        config.setChainCode(normalizedChainCode);
+        config.setBlockchainId(normalizedBlockchainId);
+        config.setChainCode(blockchainConfig.getChainCode());
         config.setChainName(blockchainConfig.getChainName());
         config.setRpcUrl(requireText(rpcUrl, "rpcUrl"));
         config.setCollectionAddress(requireText(collectionAddress, "collectionAddress"));
@@ -102,19 +104,23 @@ public class CoinChainConfigService implements CoinChainConfigBiz {
         return coinChainConfigRepository.save(config);
     }
 
-    private BlockchainConfig validateAndResolveBlockchain(String chainCode, String chainName) {
+    private BlockchainConfig validateAndResolveBlockchain(Integer blockchainId, String chainCode, String chainName) {
+        int normalizedBlockchainId = validateBlockchainId(blockchainId);
         String normalizedChainCode = requireText(chainCode, "chainCode").toUpperCase();
         String normalizedChainName = requireText(chainName, "chainName");
 
-        BlockchainConfig blockchainConfig = blockchainConfigRepository.findByChainCodeIgnoreCase(normalizedChainCode)
-            .orElseThrow(() -> new IllegalArgumentException("blockchain config not found for chainCode"));
+        BlockchainConfig blockchainConfig = blockchainConfigRepository.findByBlockchainId(normalizedBlockchainId)
+            .orElseThrow(() -> new IllegalArgumentException("blockchain config not found for blockchainId"));
 
         if (Boolean.FALSE.equals(blockchainConfig.getEnabled())) {
             throw new IllegalArgumentException("selected blockchain is disabled");
         }
 
+        if (!blockchainConfig.getChainCode().equalsIgnoreCase(normalizedChainCode)) {
+            throw new IllegalArgumentException("chainCode does not match selected blockchainId");
+        }
         if (!blockchainConfig.getChainName().equals(normalizedChainName)) {
-            throw new IllegalArgumentException("chainName does not match selected chainCode");
+            throw new IllegalArgumentException("chainName does not match selected blockchainId");
         }
         return blockchainConfig;
     }
@@ -152,6 +158,13 @@ public class CoinChainConfigService implements CoinChainConfigBiz {
             throw new IllegalArgumentException(field + " must be a non-negative integer");
         }
         return precision;
+    }
+
+    private int validateBlockchainId(Integer blockchainId) {
+        if (blockchainId == null || blockchainId < 0) {
+            throw new IllegalArgumentException("blockchainId must be a non-negative integer");
+        }
+        return blockchainId;
     }
 
     private String normalizeExtraJson(String extraJson) {

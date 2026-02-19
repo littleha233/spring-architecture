@@ -18,7 +18,7 @@ import java.time.Instant;
 @Table(
     name = "coin_chain_config",
     uniqueConstraints = {
-        @UniqueConstraint(name = "uk_coin_chain_config_coin_chain", columnNames = {"coin_id", "chain_code"})
+        @UniqueConstraint(name = "uk_coin_chain_config_coin_blockchain", columnNames = {"coin_id", "blockchain_id"})
     }
 )
 @Data
@@ -29,6 +29,9 @@ public class CoinChainConfig {
 
     @Column(name = "coin_id", nullable = false)
     private Long coinId;
+
+    @Column(name = "blockchain_id", nullable = false)
+    private Integer blockchainId;
 
     @Column(name = "chain_code", nullable = false, length = 32)
     private String chainCode;
@@ -73,10 +76,11 @@ public class CoinChainConfig {
         // for JPA
     }
 
-    public CoinChainConfig(Long coinId, String chainCode, String chainName, String rpcUrl, String collectionAddress,
+    public CoinChainConfig(Long coinId, Integer blockchainId, String chainCode, String chainName, String rpcUrl, String collectionAddress,
                            String withdrawAddress, BigDecimal minWithdrawAmount, Integer withdrawPrecision,
                            BigDecimal minDepositAmount, Integer depositPrecision, String extraJson, Boolean enabled) {
         this.coinId = coinId;
+        this.blockchainId = blockchainId;
         this.chainCode = chainCode;
         this.chainName = chainName;
         this.rpcUrl = rpcUrl;

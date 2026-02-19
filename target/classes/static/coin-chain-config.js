@@ -12,6 +12,7 @@ const chainModalTitle = document.getElementById('chainModalTitle');
 const closeModalBtn = document.getElementById('closeModalBtn');
 const formCoinSelect = document.getElementById('formCoinSelect');
 const chainCodeInput = document.getElementById('chainCodeInput');
+const blockchainIdInput = document.getElementById('blockchainIdInput');
 const chainNameInput = document.getElementById('chainNameInput');
 const rpcUrlInput = document.getElementById('rpcUrlInput');
 const collectionAddressInput = document.getElementById('collectionAddressInput');
@@ -143,6 +144,7 @@ function configToUpdatePayload(config, extraJsonCompactText) {
     const chainFromMap = blockchainMap.get(String(config.chainCode || '').toUpperCase());
     return {
         coinId: config.coinId,
+        blockchainId: config.blockchainId ?? (chainFromMap ? chainFromMap.blockchainId : null),
         chainCode: config.chainCode,
         chainName: config.chainName || (chainFromMap ? chainFromMap.chainName : ''),
         rpcUrl: config.rpcUrl,
@@ -208,10 +210,12 @@ function renderChainSelect() {
 function syncChainNameByCode() {
     const selectedCode = chainCodeInput.value;
     if (!selectedCode) {
+        blockchainIdInput.value = '';
         chainNameInput.value = '';
         return;
     }
     const chain = blockchainMap.get(selectedCode.toUpperCase());
+    blockchainIdInput.value = chain && chain.blockchainId !== undefined && chain.blockchainId !== null ? chain.blockchainId : '';
     chainNameInput.value = chain ? chain.chainName : '';
 }
 
@@ -283,7 +287,7 @@ function getJsonPreview(config) {
 function renderTable() {
     chainTableBody.innerHTML = '';
     if (!filteredChainConfigs.length) {
-        chainTableBody.innerHTML = '<tr><td colspan="10">暂无数据</td></tr>';
+        chainTableBody.innerHTML = '<tr><td colspan="11">暂无数据</td></tr>';
         return;
     }
 
@@ -291,6 +295,7 @@ function renderTable() {
         <tr>
             <td>${config.id}</td>
             <td>${escapeHtml(coinLabel(config.coinId))}</td>
+            <td>${config.blockchainId ?? '-'}</td>
             <td>${escapeHtml(config.chainCode)}</td>
             <td>${escapeHtml(config.chainName || '-')}</td>
             <td>${escapeHtml(config.rpcUrl)}</td>
@@ -313,6 +318,7 @@ function clearForm() {
     currentEditSnapshot = null;
     formCoinSelect.value = '';
     chainCodeInput.value = '';
+    blockchainIdInput.value = '';
     chainNameInput.value = '';
     rpcUrlInput.value = '';
     collectionAddressInput.value = '';
@@ -349,6 +355,7 @@ async function openEditModal(config) {
     formCoinSelect.value = String(config.coinId);
     chainCodeInput.value = config.chainCode || '';
     syncChainNameByCode();
+    blockchainIdInput.value = config.blockchainId ?? blockchainIdInput.value;
     chainNameInput.value = config.chainName || chainNameInput.value;
     rpcUrlInput.value = config.rpcUrl || '';
     collectionAddressInput.value = config.collectionAddress || '';
@@ -471,6 +478,7 @@ async function saveConfig() {
 
     const payload = {
         coinId,
+        blockchainId: Number(blockchainIdInput.value),
         chainCode: chainCodeInput.value.trim(),
         chainName: chainNameInput.value.trim(),
         rpcUrl: rpcUrlInput.value.trim(),
@@ -486,6 +494,10 @@ async function saveConfig() {
 
     if (!Number.isInteger(coinId) || coinId <= 0) {
         showMsg(modalMsg, '请选择有效币种');
+        return;
+    }
+    if (!Number.isInteger(payload.blockchainId) || payload.blockchainId < 0) {
+        showMsg(modalMsg, '请选择有效区块链，确保 blockchainId 自动带出');
         return;
     }
     if (!payload.chainCode || !payload.chainName) {

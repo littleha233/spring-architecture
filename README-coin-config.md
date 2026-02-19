@@ -99,6 +99,38 @@ SQL 文件：
 }
 ```
 
+### 4.4 对外 Facade API（供其他项目调用）
+- `GET /api/facade/config/coin-chain?coinId=1&blockchainId=0`
+
+说明：
+- 入参使用业务ID：`coinId`（币种ID）+ `blockchainId`（区块链ID）
+- 返回该币种在该区块链下的完整扩展参数配置（找不到返回 404）
+
+返回示例：
+```json
+{
+  "coinId": 1,
+  "symbol": "USDT",
+  "fullName": "Tether USD",
+  "coinPrecision": 6,
+  "iconUrl": "/uploads/coin-icons/usdt.png",
+  "blockchainId": 0,
+  "chainCode": "ETH",
+  "chainName": "Ethereum",
+  "rpcUrl": "https://eth.llamarpc.com",
+  "collectionAddress": "0x...",
+  "withdrawAddress": "0x...",
+  "minWithdrawAmount": 0.01,
+  "withdrawPrecision": 6,
+  "minDepositAmount": 0.001,
+  "depositPrecision": 6,
+  "extraJson": "{\"chainId\":1}",
+  "enabled": true,
+  "createTime": "2026-02-19T04:00:00Z",
+  "updateTime": "2026-02-19T04:00:00Z"
+}
+```
+
 ## 5. 联动规则
 
 在币种扩展参数页面：

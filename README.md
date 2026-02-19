@@ -28,6 +28,9 @@ IDE 启动入口：
 
 项目遵循：`Controller -> Biz -> Service -> Repository -> Domain`
 
+对外提供了 Facade 查询接口，供其他项目按 `coinId + blockchainId` 获取完整扩展参数：
+- `GET /api/facade/config/coin-chain?coinId=1&blockchainId=0`
+
 ## 数据库与SQL
 
 当前核心表：
@@ -49,3 +52,4 @@ SQL 文件：
 ## 说明文档
 
 - `README-coin-config.md`
+- `README-facade.md`

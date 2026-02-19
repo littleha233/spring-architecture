@@ -1,17 +1,24 @@
 package com.example.springdemo.service;
 
 import com.example.springdemo.biz.ConfigFacadeBiz;
+import com.example.springdemo.common.error.BusinessException;
+import com.example.springdemo.common.error.ErrorCode;
+import com.example.springdemo.common.logging.LogContext;
 import com.example.springdemo.domain.Coin;
 import com.example.springdemo.domain.CoinChainConfig;
 import com.example.springdemo.facade.dto.CoinChainConfigResponse;
 import com.example.springdemo.repository.CoinChainConfigRepository;
 import com.example.springdemo.repository.CoinRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
 public class ConfigFacadeService implements ConfigFacadeBiz {
+    private static final Logger log = LoggerFactory.getLogger(ConfigFacadeService.class);
+
     private final CoinRepository coinRepository;
     private final CoinChainConfigRepository coinChainConfigRepository;
 
@@ -27,12 +34,26 @@ public class ConfigFacadeService implements ConfigFacadeBiz {
 
         Optional<Coin> coinOptional = coinRepository.findByCoinId(coinId);
         if (coinOptional.isEmpty()) {
+            log.info(
+                "business traceId={} userId={} operation=query_coin_chain_config details=coinId:{},blockchainId:{} result=NOT_FOUND",
+                LogContext.traceId(),
+                LogContext.currentUserId(),
+                coinId,
+                blockchainId
+            );
             return Optional.empty();
         }
         Coin coin = coinOptional.get();
 
         Optional<CoinChainConfig> configOptional = coinChainConfigRepository.findByCoinIdAndBlockchainId(coin.getId(), blockchainId);
         if (configOptional.isEmpty()) {
+            log.info(
+                "business traceId={} userId={} operation=query_coin_chain_config details=coinId:{},blockchainId:{} result=NOT_FOUND",
+                LogContext.traceId(),
+                LogContext.currentUserId(),
+                coinId,
+                blockchainId
+            );
             return Optional.empty();
         }
         CoinChainConfig config = configOptional.get();
@@ -54,12 +75,19 @@ public class ConfigFacadeService implements ConfigFacadeBiz {
         response.setEnabled(config.getEnabled());
         response.setCreateTime(config.getCreateTime());
         response.setUpdateTime(config.getUpdateTime());
+        log.info(
+            "business traceId={} userId={} operation=query_coin_chain_config details=coinId:{},blockchainId:{} result=SUCCESS",
+            LogContext.traceId(),
+            LogContext.currentUserId(),
+            coinId,
+            blockchainId
+        );
         return Optional.of(response);
     }
 
     private void validateNonNegative(Integer value, String field) {
         if (value == null || value < 0) {
-            throw new IllegalArgumentException(field + " must be a non-negative integer");
+            throw new BusinessException(ErrorCode.INVALID_ARGUMENT, field + " must be a non-negative integer");
         }
     }
 }

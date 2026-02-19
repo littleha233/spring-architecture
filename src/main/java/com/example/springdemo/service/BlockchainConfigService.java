@@ -1,14 +1,21 @@
 package com.example.springdemo.service;
 
 import com.example.springdemo.biz.BlockchainConfigBiz;
+import com.example.springdemo.common.error.BusinessException;
+import com.example.springdemo.common.error.ErrorCode;
+import com.example.springdemo.common.logging.LogContext;
 import com.example.springdemo.domain.BlockchainConfig;
 import com.example.springdemo.repository.BlockchainConfigRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class BlockchainConfigService implements BlockchainConfigBiz {
+    private static final Logger log = LoggerFactory.getLogger(BlockchainConfigService.class);
+
     private final BlockchainConfigRepository blockchainConfigRepository;
 
     public BlockchainConfigService(BlockchainConfigRepository blockchainConfigRepository) {
@@ -30,10 +37,10 @@ public class BlockchainConfigService implements BlockchainConfigBiz {
         String normalizedChainName = requireText(chainName, "chainName");
 
         if (blockchainConfigRepository.existsByBlockchainId(normalizedBlockchainId)) {
-            throw new IllegalArgumentException("blockchainId already exists");
+            throw new BusinessException(ErrorCode.DUPLICATE_RESOURCE, "blockchainId already exists");
         }
         if (blockchainConfigRepository.existsByChainCodeIgnoreCase(normalizedChainCode)) {
-            throw new IllegalArgumentException("chainCode already exists");
+            throw new BusinessException(ErrorCode.DUPLICATE_RESOURCE, "chainCode already exists");
         }
 
         BlockchainConfig blockchainConfig = new BlockchainConfig(
@@ -42,50 +49,80 @@ public class BlockchainConfigService implements BlockchainConfigBiz {
             normalizedChainName,
             enabled == null ? Boolean.TRUE : enabled
         );
-        return blockchainConfigRepository.save(blockchainConfig);
+        BlockchainConfig saved = blockchainConfigRepository.save(blockchainConfig);
+        log.info(
+            "business traceId={} userId={} operation=create_blockchain_config details=id:{},blockchainId:{},chainCode:{} result=SUCCESS",
+            LogContext.traceId(),
+            LogContext.currentUserId(),
+            saved.getId(),
+            saved.getBlockchainId(),
+            saved.getChainCode()
+        );
+        log.info(
+            "audit traceId={} userId={} action=create_blockchain_config target=blockchainId:{}",
+            LogContext.traceId(),
+            LogContext.currentUserId(),
+            saved.getBlockchainId()
+        );
+        return saved;
     }
 
     @Override
     public BlockchainConfig update(Long id, Integer blockchainId, String chainCode, String chainName, Boolean enabled) {
         validatePositiveId(id, "id");
         BlockchainConfig blockchainConfig = blockchainConfigRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("blockchain config not found"));
+            .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "blockchain config not found"));
 
         int normalizedBlockchainId = validateBlockchainId(blockchainId);
         String normalizedChainCode = requireText(chainCode, "chainCode").toUpperCase();
         String normalizedChainName = requireText(chainName, "chainName");
 
         if (blockchainConfigRepository.existsByBlockchainIdAndIdNot(normalizedBlockchainId, id)) {
-            throw new IllegalArgumentException("blockchainId already exists");
+            throw new BusinessException(ErrorCode.DUPLICATE_RESOURCE, "blockchainId already exists");
         }
         if (blockchainConfigRepository.existsByChainCodeIgnoreCaseAndIdNot(normalizedChainCode, id)) {
-            throw new IllegalArgumentException("chainCode already exists");
+            throw new BusinessException(ErrorCode.DUPLICATE_RESOURCE, "chainCode already exists");
         }
 
         blockchainConfig.setBlockchainId(normalizedBlockchainId);
         blockchainConfig.setChainCode(normalizedChainCode);
         blockchainConfig.setChainName(normalizedChainName);
         blockchainConfig.setEnabled(enabled == null ? Boolean.TRUE : enabled);
-        return blockchainConfigRepository.save(blockchainConfig);
+        BlockchainConfig saved = blockchainConfigRepository.save(blockchainConfig);
+        log.info(
+            "business traceId={} userId={} operation=update_blockchain_config details=id:{},blockchainId:{},chainCode:{} result=SUCCESS",
+            LogContext.traceId(),
+            LogContext.currentUserId(),
+            saved.getId(),
+            saved.getBlockchainId(),
+            saved.getChainCode()
+        );
+        log.info(
+            "audit traceId={} userId={} action=update_blockchain_config target=blockchainId:{}",
+            LogContext.traceId(),
+            LogContext.currentUserId(),
+            saved.getBlockchainId()
+        );
+        return saved;
     }
 
     private int validateBlockchainId(Integer blockchainId) {
         if (blockchainId == null || blockchainId < 0) {
-            throw new IllegalArgumentException("blockchainId must be a non-negative integer");
+            throw new BusinessException(ErrorCode.INVALID_ARGUMENT, "blockchainId must be a non-negative integer");
         }
         return blockchainId;
     }
 
     private String requireText(String value, String field) {
         if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException(field + " is required");
+            throw new BusinessException(ErrorCode.INVALID_ARGUMENT, field + " is required");
         }
         return value.trim();
     }
 
     private void validatePositiveId(Long id, String fieldName) {
         if (id == null || id <= 0) {
-            throw new IllegalArgumentException(fieldName + " must be a positive number");
+            throw new BusinessException(ErrorCode.INVALID_ARGUMENT, fieldName + " must be a positive number");
         }
     }
 }

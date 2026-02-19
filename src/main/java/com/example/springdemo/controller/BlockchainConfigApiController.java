@@ -2,9 +2,6 @@ package com.example.springdemo.controller;
 
 import com.example.springdemo.biz.BlockchainConfigBiz;
 import com.example.springdemo.domain.BlockchainConfig;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -51,11 +48,6 @@ public class BlockchainConfigApiController {
         );
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(e.getMessage()));
-    }
-
     public record SaveBlockchainConfigRequest(
         Integer blockchainId,
         String chainCode,
@@ -64,6 +56,4 @@ public class BlockchainConfigApiController {
     ) {
     }
 
-    public record ErrorResponse(String message) {
-    }
 }

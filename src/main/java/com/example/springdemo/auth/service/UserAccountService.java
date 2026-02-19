@@ -1,12 +1,18 @@
 package com.example.springdemo.auth.service;
 
+import com.example.springdemo.common.error.BusinessException;
+import com.example.springdemo.common.error.ErrorCode;
+import com.example.springdemo.common.logging.LogContext;
 import com.example.springdemo.domain.AppUser;
 import com.example.springdemo.repository.AppUserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserAccountService {
+    private static final Logger log = LoggerFactory.getLogger(UserAccountService.class);
     private static final String DEFAULT_ADMIN_USERNAME = "admin";
     private static final String DEFAULT_ADMIN_PASSWORD = "123456";
 
@@ -28,6 +34,12 @@ public class UserAccountService {
             Boolean.TRUE
         );
         appUserRepository.save(admin);
+        log.info(
+            "audit traceId={} userId={} action=init_default_admin target=username:{}",
+            LogContext.traceId(),
+            LogContext.currentUserId(),
+            DEFAULT_ADMIN_USERNAME
+        );
     }
 
     public AppUser register(String username, String password, String confirmPassword) {
@@ -36,7 +48,7 @@ public class UserAccountService {
         validateConfirmPassword(normalizedPassword, confirmPassword);
 
         if (appUserRepository.existsByUsernameIgnoreCase(normalizedUsername)) {
-            throw new IllegalArgumentException("username already exists");
+            throw new BusinessException(ErrorCode.DUPLICATE_RESOURCE, "username already exists");
         }
 
         AppUser user = new AppUser(
@@ -44,42 +56,55 @@ public class UserAccountService {
             passwordEncoder.encode(normalizedPassword),
             Boolean.TRUE
         );
-        return appUserRepository.save(user);
+        AppUser saved = appUserRepository.save(user);
+        log.info(
+            "business traceId={} userId={} operation=register_user details=username:{} result=SUCCESS",
+            LogContext.traceId(),
+            LogContext.currentUserId(),
+            saved.getUsername()
+        );
+        log.info(
+            "audit traceId={} userId={} action=register_user target=username:{}",
+            LogContext.traceId(),
+            LogContext.currentUserId(),
+            saved.getUsername()
+        );
+        return saved;
     }
 
     private String normalizeUsername(String username) {
         if (username == null) {
-            throw new IllegalArgumentException("username is required");
+            throw new BusinessException(ErrorCode.INVALID_ARGUMENT, "username is required");
         }
         String normalized = username.trim();
         if (normalized.isEmpty()) {
-            throw new IllegalArgumentException("username is required");
+            throw new BusinessException(ErrorCode.INVALID_ARGUMENT, "username is required");
         }
         if (normalized.length() < 3 || normalized.length() > 32) {
-            throw new IllegalArgumentException("username length must be between 3 and 32");
+            throw new BusinessException(ErrorCode.INVALID_ARGUMENT, "username length must be between 3 and 32");
         }
         if (!normalized.matches("^[a-zA-Z0-9_]+$")) {
-            throw new IllegalArgumentException("username only supports letters, numbers and underscore");
+            throw new BusinessException(ErrorCode.INVALID_ARGUMENT, "username only supports letters, numbers and underscore");
         }
         return normalized;
     }
 
     private String validatePassword(String password) {
         if (password == null || password.isEmpty()) {
-            throw new IllegalArgumentException("password is required");
+            throw new BusinessException(ErrorCode.INVALID_ARGUMENT, "password is required");
         }
         if (password.length() < 6 || password.length() > 64) {
-            throw new IllegalArgumentException("password length must be between 6 and 64");
+            throw new BusinessException(ErrorCode.INVALID_ARGUMENT, "password length must be between 6 and 64");
         }
         return password;
     }
 
     private void validateConfirmPassword(String password, String confirmPassword) {
         if (confirmPassword == null || confirmPassword.isEmpty()) {
-            throw new IllegalArgumentException("confirmPassword is required");
+            throw new BusinessException(ErrorCode.INVALID_ARGUMENT, "confirmPassword is required");
         }
         if (!password.equals(confirmPassword)) {
-            throw new IllegalArgumentException("password and confirmPassword do not match");
+            throw new BusinessException(ErrorCode.INVALID_ARGUMENT, "password and confirmPassword do not match");
         }
     }
 }

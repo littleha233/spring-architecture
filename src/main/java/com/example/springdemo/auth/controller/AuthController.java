@@ -1,5 +1,6 @@
 package com.example.springdemo.auth.controller;
 
+import com.example.springdemo.common.error.BusinessException;
 import com.example.springdemo.auth.service.UserAccountService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -47,7 +48,7 @@ public class AuthController {
         try {
             userAccountService.register(username, password, confirmPassword);
             return "redirect:/login?registered=true";
-        } catch (IllegalArgumentException e) {
+        } catch (BusinessException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             redirectAttributes.addFlashAttribute("username", username == null ? "" : username.trim());
             return "redirect:/register";

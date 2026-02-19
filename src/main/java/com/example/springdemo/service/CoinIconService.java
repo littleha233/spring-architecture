@@ -1,7 +1,13 @@
 package com.example.springdemo.service;
 
 import com.example.springdemo.biz.CoinIconBiz;
+import com.example.springdemo.common.error.BusinessException;
+import com.example.springdemo.common.error.ErrorCode;
+import com.example.springdemo.common.error.IntegrationException;
+import com.example.springdemo.common.logging.LogContext;
 import com.example.springdemo.config.CoinIconProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +24,7 @@ import java.util.UUID;
 
 @Service
 public class CoinIconService implements CoinIconBiz {
+    private static final Logger log = LoggerFactory.getLogger(CoinIconService.class);
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("png", "jpg", "jpeg", "gif", "webp", "svg");
 
     private final CoinIconProperties coinIconProperties;
@@ -39,42 +46,53 @@ public class CoinIconService implements CoinIconBiz {
 
         Path targetPath = uploadDir.resolve(filename).normalize();
         if (!targetPath.startsWith(uploadDir)) {
-            throw new IllegalArgumentException("invalid upload path");
+            throw new BusinessException(ErrorCode.BUSINESS_RULE_VIOLATION, "invalid upload path");
         }
 
         try {
             Files.createDirectories(uploadDir);
             Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            throw new IllegalArgumentException("failed to save icon file: " + e.getMessage());
+            throw new IntegrationException(ErrorCode.INTEGRATION_IO_ERROR, "failed to save icon file", e);
         }
 
         String publicPath = normalizePublicPath(coinIconProperties.getPublicPath());
-        return publicPath + "/" + filename;
+        String iconUrl = publicPath + "/" + filename;
+        log.info(
+            "business traceId={} userId={} operation=upload_coin_icon details=filename:{},size:{} result=SUCCESS",
+            LogContext.traceId(),
+            LogContext.currentUserId(),
+            filename,
+            file.getSize()
+        );
+        return iconUrl;
     }
 
     private void validateFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("icon file is required");
+            throw new BusinessException(ErrorCode.INVALID_ARGUMENT, "icon file is required");
         }
 
         Long maxSizeKb = coinIconProperties.getMaxSizeKb();
         if (maxSizeKb == null || maxSizeKb <= 0) {
-            throw new IllegalArgumentException("coin.icon.max-size-kb must be a positive number");
+            throw new BusinessException(ErrorCode.INVALID_ARGUMENT, "coin.icon.max-size-kb must be a positive number");
         }
         long maxSizeBytes = maxSizeKb * 1024L;
         if (file.getSize() > maxSizeBytes) {
-            throw new IllegalArgumentException("icon file size exceeds limit: " + maxSizeKb + "KB");
+            throw new BusinessException(ErrorCode.UPLOAD_FILE_TOO_LARGE, "icon file size exceeds limit: " + maxSizeKb + "KB");
         }
 
         String contentType = file.getContentType();
         if (!StringUtils.hasText(contentType) || !contentType.toLowerCase(Locale.ROOT).startsWith("image/")) {
-            throw new IllegalArgumentException("only image files are supported");
+            throw new BusinessException(ErrorCode.INVALID_ARGUMENT, "only image files are supported");
         }
 
         String extension = resolveExtension(file);
         if (StringUtils.hasText(extension) && !ALLOWED_EXTENSIONS.contains(extension)) {
-            throw new IllegalArgumentException("unsupported image format, allowed: " + String.join(", ", ALLOWED_EXTENSIONS));
+            throw new BusinessException(
+                ErrorCode.INVALID_ARGUMENT,
+                "unsupported image format, allowed: " + String.join(", ", ALLOWED_EXTENSIONS)
+            );
         }
     }
 
@@ -104,14 +122,14 @@ public class CoinIconService implements CoinIconBiz {
     private Path resolveUploadDir() {
         String uploadDir = coinIconProperties.getUploadDir();
         if (!StringUtils.hasText(uploadDir)) {
-            throw new IllegalArgumentException("coin.icon.upload-dir is required");
+            throw new BusinessException(ErrorCode.INVALID_ARGUMENT, "coin.icon.upload-dir is required");
         }
         return Paths.get(uploadDir).toAbsolutePath().normalize();
     }
 
     private String normalizePublicPath(String publicPath) {
         if (!StringUtils.hasText(publicPath)) {
-            throw new IllegalArgumentException("coin.icon.public-path is required");
+            throw new BusinessException(ErrorCode.INVALID_ARGUMENT, "coin.icon.public-path is required");
         }
         String normalized = publicPath.trim();
         if (!normalized.startsWith("/")) {

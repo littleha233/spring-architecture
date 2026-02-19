@@ -23,6 +23,8 @@ spring:
       max-request-size: 2MB
 
 logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level traceId=%X{traceId} %logger{36} - %msg%n"
   level:
     org.hibernate.SQL: debug
 

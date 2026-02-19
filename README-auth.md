@@ -21,6 +21,12 @@
 
 ## 3. 整体设计
 
+分层包结构：
+
+- `auth` 层：注册登录业务编排（Controller + Service + 初始化）
+- `security` 层：Spring Security 配置、认证细节、登录请求过滤器
+- `domain/repository` 层：用户实体与持久化
+
 ### 3.1 用户模型
 
 新增用户表 `app_user`，关键字段：
@@ -42,9 +48,9 @@
 
 对应代码：
 
-- `src/main/java/com/example/springdemo/service/AuthUserDetailsService.java`
-- `src/main/java/com/example/springdemo/service/UserAccountService.java`
-- `src/main/java/com/example/springdemo/config/DefaultUserInitializer.java`
+- `src/main/java/com/example/springdemo/security/service/AuthUserDetailsService.java`
+- `src/main/java/com/example/springdemo/auth/service/UserAccountService.java`
+- `src/main/java/com/example/springdemo/auth/config/DefaultUserInitializer.java`
 
 ### 3.3 安全策略
 
@@ -61,7 +67,8 @@
 
 对应代码：
 
-- `src/main/java/com/example/springdemo/config/SecurityConfig.java`
+- `src/main/java/com/example/springdemo/security/config/SecurityConfig.java`
+- `src/main/java/com/example/springdemo/security/filter/LoginValidationFilter.java`
 
 ## 4. 实现流程（落地步骤）
 

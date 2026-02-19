@@ -1,6 +1,6 @@
-package com.example.springdemo.config;
+package com.example.springdemo.auth.config;
 
-import com.example.springdemo.service.UserAccountService;
+import com.example.springdemo.auth.service.UserAccountService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 

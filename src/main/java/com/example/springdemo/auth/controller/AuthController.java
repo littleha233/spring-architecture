@@ -1,6 +1,6 @@
-package com.example.springdemo.controller;
+package com.example.springdemo.auth.controller;
 
-import com.example.springdemo.service.UserAccountService;
+import com.example.springdemo.auth.service.UserAccountService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

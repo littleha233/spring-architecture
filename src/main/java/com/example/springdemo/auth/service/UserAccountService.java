@@ -1,4 +1,4 @@
-package com.example.springdemo.service;
+package com.example.springdemo.auth.service;
 
 import com.example.springdemo.domain.AppUser;
 import com.example.springdemo.repository.AppUserRepository;
